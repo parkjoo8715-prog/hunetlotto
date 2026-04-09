@@ -2443,10 +2443,13 @@
   /* S4 보조 버튼 — rows 확정 여부에 따라 분기 */
   function handleBackFromCoffee() {
     const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
-    if (data.rows) {
-      showScreen3(data);              // 확정 번호 있음 → S3 (티켓 확인)
+    if (WINNING_NUMBERS) {
+      // 이벤트 종료 → rows 있으면 결과화면, 없으면 S1
+      if (data.rows) showScreen3(data);
+      else showScreen('screen-1');
     } else {
-      showScreen('screen-2');         // 번호 미확정 → S2 (번호 선택)
+      if (data.rows) showScreen3(data);
+      else showScreen('screen-2');
     }
   }
 
@@ -2455,10 +2458,19 @@
     const btn = document.getElementById('btn-back-ticket');
     if (!btn) return;
     const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
-    if (data.rows) {
-      btn.textContent = '🎟 내 로또 번호 확인하기';
+    if (WINNING_NUMBERS) {
+      // 이벤트 종료
+      if (data.rows) {
+        btn.textContent = '🎟 번호 확인하러 가기';
+      } else {
+        btn.textContent = '← 처음으로';
+      }
     } else {
-      btn.textContent = '🎲 번호 선택하러 가기';
+      if (data.rows) {
+        btn.textContent = '🎟 내 로또 번호 확인하기';
+      } else {
+        btn.textContent = '🎲 번호 선택하러 가기';
+      }
     }
   }
 
@@ -2793,6 +2805,12 @@
 
     // Supabase에서 방송 URL + 당첨번호 로드 (비동기, 실패해도 기본값 유지)
     await Promise.allSettled([loadBroadcastUrl(), loadWinningNumbers()]);
+
+    // 이벤트 종료 여부에 따라 S1 버튼 텍스트 변경
+    if (WINNING_NUMBERS) {
+      const btnStart = document.getElementById('btn-start');
+      btnStart.textContent = '🏆 당첨번호 확인하러 가기';
+    }
 
   })();
 
