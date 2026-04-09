@@ -2188,7 +2188,10 @@
         }
       } catch(e) {
         console.warn('Supabase submit_entry 실패:', e);
-        showToast('⚠️','연결 오류 — 로컬 저장으로 계속합니다');
+        showToast('❌','저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        btn.classList.add('ready');
+        btn.textContent = '5줄 모두 확정하기';
+        return;
       }
     }
 
@@ -2406,9 +2409,31 @@
         if (error) throw error;
 
         if (!entries || entries.length === 0) {
-          // 참여기록 없음 → 커피 화면은 유지, 미수령 상태로 표시
-          renderCoffeeUI('unclaimed', '');
-          updateCoffeeButtonS3(false);
+          // 로또 참여기록 없음 → coffee_claims 조회 (커피 전용 사용자)
+          data.coffeeOnly = true;
+          sessionStorage.setItem('lotto_user', JSON.stringify(data));
+          try {
+            const { data: claim, error: claimErr } = await _sb.rpc('get_coffee_claim', {
+              p_dept: data.dept,
+              p_name: data.dbName || data.name
+            });
+            if (claimErr) throw claimErr;
+            if (claim && claim.claimed) {
+              const at = new Date(claim.claimed_at).toLocaleString('ko-KR',
+                {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+              sessionStorage.setItem('coffee_claimed','true');
+              sessionStorage.setItem('coffee_claimed_at', at);
+              renderCoffeeUI('claimed', at);
+              updateCoffeeButtonS3(true);
+            } else {
+              renderCoffeeUI('unclaimed', '');
+              updateCoffeeButtonS3(false);
+            }
+          } catch(e2) {
+            console.warn('get_coffee_claim 실패:', e2);
+            renderCoffeeUI('unclaimed', '');
+            updateCoffeeButtonS3(false);
+          }
           return;
         }
 
@@ -2494,65 +2519,59 @@
     // 처리 중 로딩 상태 표시
     renderCoffeeUI('loading', '');
 
-    if (_sb && data.dept && data.name) {
-      try {
-        const { data: result, error } = await _sb.rpc('claim_coffee', {
-          p_dept: data.dept,
-          p_name: data.dbName || data.name
-        });
-        if (error) throw error;
-
-        if (result && result.success === false) {
-          if (result.error === 'ALREADY_CLAIMED') {
-            const at = result.claimed_at
-              ? new Date(result.claimed_at).toLocaleString('ko-KR',
-                  {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
-              : '';
-            sessionStorage.setItem('coffee_claimed','true');
-            sessionStorage.setItem('coffee_claimed_at', at);
-            renderCoffeeUI('claimed', at);
-            updateCoffeeButtonS3(true);
-            showToast('ℹ️','이미 수령하셨습니다.');
-          } else if (result.error === 'NOT_FOUND') {
-            renderCoffeeUI('error', '');
-            showToast('❌','참여 기록을 찾을 수 없습니다.');
-          } else {
-            renderCoffeeUI('error', '');
-            showToast('❌','수령 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-          }
-          return;
-        }
-
-        // FR-05 성공
-        const now = new Date().toLocaleString('ko-KR',
-          {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-        sessionStorage.setItem('coffee_claimed','true');
-        sessionStorage.setItem('coffee_claimed_at', now);
-        data.coffeeClaimed = true;
-        data.coffeeClaimedAt = now;
-        sessionStorage.setItem('lotto_user', JSON.stringify(data));
-        renderCoffeeUI('claimed', now);
-        updateCoffeeButtonS3(true);
-        showToast('☕','커피 수령이 완료되었습니다!');
-        return;
-
-      } catch(e) {
-        console.warn('confirmCoffee RPC 실패:', e);
-        // PRD 케이스 C: 네트워크 오류 — 로컬 fallback 금지
-        renderCoffeeUI('error', '');
-        showToast('❌','수령 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-        return;
-      }
+    if (!_sb || !data.dept || !data.name) {
+      renderCoffeeUI('error', '');
+      showToast('❌','DB 연결이 필요합니다. 관리자에게 문의해주세요.');
+      return;
     }
 
-    // Supabase 미설정(로컬 테스트) 전용 fallback
-    const now = new Date().toLocaleString('ko-KR',
-      {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-    sessionStorage.setItem('coffee_claimed','true');
-    sessionStorage.setItem('coffee_claimed_at', now);
-    renderCoffeeUI('claimed', now);
-    updateCoffeeButtonS3(true);
-    showToast('☕','커피 수령이 완료되었습니다!');
+    try {
+      // coffeeOnly: coffee_claims RPC / 로또 참여자: claim_coffee RPC
+      const rpcName = data.coffeeOnly ? 'claim_coffee_only' : 'claim_coffee';
+      const { data: result, error } = await _sb.rpc(rpcName, {
+        p_dept: data.dept,
+        p_name: data.dbName || data.name
+      });
+      if (error) throw error;
+
+      if (result && result.success === false) {
+        if (result.error === 'ALREADY_CLAIMED') {
+          const at = result.claimed_at
+            ? new Date(result.claimed_at).toLocaleString('ko-KR',
+                {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+            : '';
+          sessionStorage.setItem('coffee_claimed','true');
+          sessionStorage.setItem('coffee_claimed_at', at);
+          renderCoffeeUI('claimed', at);
+          updateCoffeeButtonS3(true);
+          showToast('ℹ️','이미 수령하셨습니다.');
+        } else if (result.error === 'NOT_FOUND') {
+          renderCoffeeUI('error', '');
+          showToast('❌','참여 기록을 찾을 수 없습니다.');
+        } else {
+          renderCoffeeUI('error', '');
+          showToast('❌','수령 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+        return;
+      }
+
+      // 성공
+      const now = new Date().toLocaleString('ko-KR',
+        {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+      sessionStorage.setItem('coffee_claimed','true');
+      sessionStorage.setItem('coffee_claimed_at', now);
+      data.coffeeClaimed = true;
+      data.coffeeClaimedAt = now;
+      sessionStorage.setItem('lotto_user', JSON.stringify(data));
+      renderCoffeeUI('claimed', now);
+      updateCoffeeButtonS3(true);
+      showToast('☕','커피 수령이 완료되었습니다!');
+
+    } catch(e) {
+      console.warn('confirmCoffee RPC 실패:', e);
+      renderCoffeeUI('error', '');
+      showToast('❌','수령 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    }
   }
 
   function updateCoffeeButtonS3(claimed) {
@@ -2654,13 +2673,9 @@
           const claimedAt = entry.coffee_claimed_at
             ? new Date(entry.coffee_claimed_at).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
             : '';
-          const confirmedAt = entry.confirmed_at
-            ? new Date(entry.confirmed_at).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
-            : '';
           const userData = {
             dept, team, name, dbName, rows,
             submittedAt: new Date(entry.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}),
-            confirmedAt,
             coffeeClaimed: !!entry.coffee_claimed_at,
             coffeeClaimedAt: claimedAt
           };
