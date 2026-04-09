@@ -1,0 +1,3110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HUNET 사내 로또 이벤트 2026</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎟</text></svg>" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    /* ═══════════════════════════════════════
+       HU 브랜드 토큰
+    ═══════════════════════════════════════ */
+    :root {
+      --red:        #FF0019;
+      --red-dark:   #CC0014;
+      --red-light:  rgba(255,0,25,0.14);
+      --violet:     #6541F2;
+      --bg:         linear-gradient(160deg,#0D0D1A 0%,#1A0A2E 100%);
+      --surface:    rgba(255,255,255,0.05);
+      --border:     rgba(255,255,255,0.1);
+      --t1:         #FFFFFF;
+      --t2:         rgba(255,255,255,0.65);
+      --t3:         rgba(255,255,255,0.35);
+      --ball-y:     #FBC400;
+      --ball-b:     #0081C8;
+      --ball-r:     #E03939;
+      --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:28px;
+      --shadow:     0 8px 32px rgba(0,0,0,0.45);
+      --ease:       0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      height:100%;
+      font-family:'Pretendard',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+      background:var(--bg);background-attachment:fixed;
+      color:var(--t1);-webkit-font-smoothing:antialiased;min-height:100vh;
+    }
+
+    /* ═══════════════════════════════════════
+       화면 전환
+    ═══════════════════════════════════════ */
+    .screen{display:none;min-height:100vh;flex-direction:column}
+    .screen.active{display:flex}
+
+    /* ═══════════════════════════════════════
+       HUNET CI 헤더
+    ═══════════════════════════════════════ */
+    .header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;height:60px;
+      background:rgba(10,8,22,0.88);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(16px);
+      position:sticky;top:0;z-index:200;
+    }
+    .header-brand{display:flex;align-items:center;gap:12px}
+    .header-logo-box{
+      display:flex;align-items:center;gap:0;
+      text-decoration:none;
+    }
+    /* HUNET 워드마크 — CI 기준 전체 레드 */
+    .hu-wordmark{
+      font-size:20px;font-weight:900;letter-spacing:-1px;
+      color:var(--red);line-height:1;
+    }
+    .hu-wordmark em{color:var(--red);font-style:normal}
+    .header-divider{width:1px;height:18px;background:var(--border);margin:0 12px}
+    .header-event-label{
+      font-size:11px;font-weight:700;color:var(--t2);
+      letter-spacing:0.06em;white-space:nowrap;
+    }
+    .btn-broadcast{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:7px 13px;
+      background:var(--red-light);border:1px solid rgba(250,46,67,0.35);
+      border-radius:100px;color:#FF6B7A;
+      font-size:12px;font-weight:600;font-family:inherit;
+      cursor:pointer;text-decoration:none;
+      transition:background var(--ease),border-color var(--ease);
+    }
+    .btn-broadcast:hover{background:rgba(250,46,67,0.24);border-color:rgba(250,46,67,0.6)}
+    .btn-broadcast svg{flex-shrink:0}
+
+    /* ═══════════════════════════════════════
+       화면 1 — 진입
+    ═══════════════════════════════════════ */
+    .s1-body{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;padding:40px 20px;
+    }
+    .event-hero{text-align:center;margin-bottom:36px}
+    .gonum-hero-wrap{display:flex;justify-content:center;margin-bottom:16px}
+    .gonum-character{
+      width:150px;height:150px;object-fit:contain;
+      filter:drop-shadow(0 16px 36px rgba(250,46,67,0.5));
+      animation:float 3.4s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    .ci-bar{
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      font-size:10px;font-weight:700;color:var(--t3);
+      letter-spacing:0.18em;text-transform:uppercase;margin-bottom:20px;
+    }
+    .ci-dot{width:3px;height:3px;border-radius:50%;background:var(--red);flex-shrink:0}
+    .event-badge{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:5px 14px;background:var(--red-light);
+      border:1px solid rgba(250,46,67,0.3);border-radius:100px;
+      font-size:12px;font-weight:700;color:#FF6B7A;margin-bottom:16px;
+    }
+    .event-title{
+      font-size:32px;font-weight:900;line-height:1.2;letter-spacing:-1px;margin-bottom:10px;
+    }
+    .event-title span{
+      background:linear-gradient(135deg,var(--red) 0%,var(--violet) 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .event-desc{font-size:14px;color:var(--t2);line-height:1.6}
+
+    .revisit-banner{
+      display:none;align-items:center;gap:12px;
+      padding:14px 18px;
+      background:rgba(101,65,242,0.14);border:1px solid rgba(101,65,242,0.35);
+      border-radius:var(--r-md);margin-bottom:24px;
+      max-width:420px;width:100%;
+    }
+    .revisit-banner.visible{display:flex}
+    .revisit-banner-icon{font-size:20px;flex-shrink:0}
+    .revisit-banner-text{flex:1}
+    .revisit-banner-title{font-size:13px;font-weight:700;color:#A78BFA;margin-bottom:2px}
+    .revisit-banner-desc{font-size:12px;color:var(--t2)}
+    .revisit-banner-btn{
+      padding:8px 14px;background:var(--violet);border:none;
+      border-radius:var(--r-sm);color:white;font-size:12px;font-weight:700;
+      font-family:inherit;cursor:pointer;flex-shrink:0;
+    }
+
+    /* 폼 카드 */
+    .form-card{
+      background:rgba(255,255,255,0.04);border:1px solid var(--border);
+      border-radius:var(--r-xl);padding:32px 28px;
+      width:100%;max-width:420px;
+    }
+    .form-group{margin-bottom:20px}
+    .form-group-team{margin-bottom:20px;display:none}
+    .form-group-team.visible{display:block}
+    .team-indent{
+      padding-left:14px;
+      border-left:2px solid rgba(255,0,25,0.35);
+    }
+    .form-notice{
+      display:flex;align-items:flex-start;gap:9px;
+      padding:13px 15px;margin-bottom:20px;
+      background:rgba(251,196,0,0.07);
+      border:1px solid rgba(251,196,0,0.28);
+      border-radius:var(--r-md);
+    }
+    .form-notice-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+    .form-notice-text{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.65}
+    .form-notice-text strong{color:#FDE68A;font-weight:700}
+    .form-label{
+      display:block;font-size:12px;font-weight:700;color:var(--t2);
+      margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase;
+    }
+    .form-input{
+      width:100%;padding:14px 16px;
+      background:rgba(255,255,255,0.06);
+      border:1.5px solid rgba(255,255,255,0.12);border-radius:var(--r-md);
+      color:var(--t1);font-size:16px;font-family:inherit;
+      transition:border-color var(--ease),background var(--ease);outline:none;
+    }
+    .form-input::placeholder{color:var(--t3)}
+    .form-input:focus{border-color:var(--red);background:rgba(250,46,67,0.07)}
+
+    .form-select{
+      appearance:none;-webkit-appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='rgba(255,255,255,0.4)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 14px center;
+      padding-right:40px;cursor:pointer;
+    }
+    .form-select option{background:#1A0A2E;color:#FFF}
+
+    .btn-primary{
+      width:100%;padding:16px;
+      background:linear-gradient(135deg,var(--red) 0%,var(--red-dark) 100%);
+      border:none;border-radius:var(--r-md);
+      color:white;font-size:16px;font-weight:800;font-family:inherit;
+      cursor:pointer;margin-top:8px;
+      box-shadow:0 8px 24px rgba(250,46,67,0.38);
+      transition:opacity var(--ease),transform var(--ease);
+    }
+    .btn-primary:hover{opacity:0.9;transform:translateY(-1px)}
+    .btn-primary:active{transform:translateY(0)}
+
+    /* ═══════════════════════════════════════
+       화면 2 — 번호 선택 (5행×5개)
+    ═══════════════════════════════════════ */
+    /* 상단 진행 바 — 수동 모드에서만 노출 */
+    .rows-progress-bar{
+      padding:14px 20px;
+      background:rgba(0,0,0,0.3);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(8px);
+      position:sticky;top:60px;z-index:190;
+      display:none;
+    }
+    .rows-progress-bar.show{display:block}
+    .rows-progress-label{
+      font-size:10px;font-weight:700;color:var(--t3);
+      letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;
+    }
+    .rows-slots{display:flex;gap:7px;align-items:center}
+    .row-slot{
+      flex:1;height:40px;border-radius:8px;
+      border:1.5px dashed rgba(255,255,255,0.2);
+      display:flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:700;color:var(--t3);
+      background:rgba(255,255,255,0.02);
+      transition:all var(--ease);cursor:pointer;position:relative;
+      gap:3px;
+    }
+    .row-slot .row-label{
+      font-size:10px;font-weight:800;color:var(--t3);
+      position:absolute;top:4px;left:6px;letter-spacing:0.05em;
+    }
+    .row-slot.complete{
+      background:rgba(250,46,67,0.12);
+      border:1.5px solid rgba(250,46,67,0.45);
+    }
+    .row-slot.complete .row-label{color:var(--red)}
+    .row-slot.active-row{
+      border:1.5px solid rgba(255,255,255,0.55);
+      background:rgba(255,255,255,0.07);
+    }
+    .row-slot.active-row .row-label{color:var(--t1)}
+    .row-mini-balls{display:flex;gap:2px;align-items:center;padding-top:10px}
+    .row-mini-ball{
+      width:18px;height:18px;border-radius:50%;
+      font-size:8px;font-weight:800;color:white;
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+    }
+    .row-mini-ball::before{
+      content:'';position:absolute;inset:0;border-radius:50%;
+      background:radial-gradient(circle at 35% 30%,rgba(255,255,255,0.5) 0%,transparent 60%);
+    }
+    .row-mini-ball span{position:relative;z-index:1}
+
+    /* 탭 */
+    .tab-bar{
+      display:flex;padding:0 20px;gap:4px;
+      border-bottom:1px solid var(--border);flex-shrink:0;
+    }
+    .tab-btn{
+      flex:1;padding:12px 8px;
+      background:transparent;border:none;border-bottom:2.5px solid transparent;
+      color:var(--t3);font-size:14px;font-weight:600;font-family:inherit;
+      cursor:pointer;transition:color var(--ease),border-color var(--ease);
+      margin-bottom:-1px;
+    }
+    .tab-btn.active{color:var(--t1);border-bottom-color:var(--red)}
+    .tab-content{display:none;flex:1;flex-direction:column;overflow-y:auto}
+    .tab-content.active{display:flex}
+
+    /* 자동 탭 */
+    .auto-tab-body{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;padding:28px 24px;text-align:center;overflow-y:auto;
+    }
+    .auto-machine-wrap{
+      width:180px;height:180px;margin-bottom:20px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .auto-machine-img{
+      width:180px;height:180px;object-fit:contain;
+      filter:drop-shadow(0 12px 32px rgba(250,46,67,0.45));
+    }
+    .auto-tab-title{font-size:20px;font-weight:800;margin-bottom:8px;letter-spacing:-0.4px}
+    .auto-tab-desc{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:28px}
+
+    /* 자동 결과 — 5행 테이블 */
+    .auto-rows-result{
+      width:100%;max-width:560px;margin-bottom:28px;display:none;
+      flex-direction:column;gap:8px;
+    }
+    .auto-rows-result.show{display:flex}
+    .auto-row-item{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 16px;
+      background:rgba(255,255,255,0.05);border:1px solid var(--border);
+      border-radius:var(--r-md);
+    }
+    .auto-row-badge{
+      font-size:13px;font-weight:900;color:var(--red);
+      width:24px;flex-shrink:0;text-align:center;letter-spacing:0.05em;
+    }
+    .auto-row-balls{display:flex;gap:8px;flex-wrap:nowrap;align-items:center}
+
+    .btn-auto{
+      padding:15px 40px;
+      background:linear-gradient(135deg,var(--red) 0%,var(--violet) 100%);
+      border:none;border-radius:var(--r-md);
+      color:white;font-size:16px;font-weight:800;font-family:inherit;
+      cursor:pointer;
+      box-shadow:0 8px 24px rgba(250,46,67,0.35);
+      transition:opacity var(--ease),transform var(--ease);
+    }
+    .btn-auto:hover{opacity:0.9;transform:translateY(-1px)}
+    .btn-auto:active{transform:translateY(0)}
+    .btn-auto:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+    /* 수동 탭 — 통합 행 목록 */
+    .manual-tab-body{
+      flex:1;display:flex;flex-direction:column;
+      padding:14px 16px 0;gap:10px;overflow-y:auto;
+    }
+
+    /* 5행 통합 목록 */
+    .manual-rows-list{display:flex;flex-direction:column;gap:6px}
+
+    .mentry{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;min-height:52px;
+      background:rgba(255,255,255,0.04);
+      border:1.5px solid rgba(255,255,255,0.1);
+      border-radius:var(--r-md);
+      cursor:pointer;
+      transition:border-color var(--ease),background var(--ease);
+    }
+    .mentry:hover:not(.mentry-active){
+      border-color:rgba(255,255,255,0.22);
+      background:rgba(255,255,255,0.06);
+    }
+    .mentry-active{
+      border-color:var(--red);
+      background:rgba(255,0,25,0.08);
+    }
+    .mentry-done{
+      border-color:rgba(255,0,25,0.32);
+    }
+    .mentry-label{
+      font-size:13px;font-weight:900;color:var(--red);
+      width:20px;flex-shrink:0;text-align:center;
+    }
+    .mentry-content{
+      flex:1;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;
+      min-width:0;
+    }
+    .mentry-empty-text{
+      font-size:12px;color:var(--t3);font-style:italic;
+    }
+    .mentry-count{
+      font-size:11px;color:var(--t3);margin-left:auto;flex-shrink:0;
+    }
+    .mentry-edit{
+      font-size:11px;color:var(--t3);margin-left:auto;flex-shrink:0;
+      opacity:0.6;
+    }
+
+    /* 그리드 영역 */
+    .manual-grid-area{
+      display:flex;flex-direction:column;gap:8px;padding-bottom:14px;
+    }
+    .manual-hint{font-size:12px;color:var(--t3);text-align:center}
+
+    /* S1 사용 가이드 링크 */
+    .guide-link-wrap{
+      margin-top:20px;display:flex;justify-content:center;
+    }
+    .btn-guide{
+      display:inline-flex;align-items:center;gap:7px;
+      padding:9px 18px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:100px;
+      color:var(--t2);font-size:13px;font-weight:600;font-family:inherit;
+      cursor:pointer;text-decoration:none;
+      transition:background var(--ease),border-color var(--ease),color var(--ease);
+    }
+    .btn-guide:hover{
+      background:rgba(255,255,255,0.10);
+      border-color:rgba(255,255,255,0.3);
+      color:var(--t1);
+    }
+    .btn-guide svg{flex-shrink:0;opacity:0.7}
+
+    /* ═══════════════════════════════════════
+       사용 설명서 오버레이
+    ═══════════════════════════════════════ */
+    .guide-overlay{
+      display:none;position:fixed;inset:0;z-index:3000;
+      overflow-y:auto;overflow-x:hidden;
+      background:linear-gradient(160deg,#0D0D1A 0%,#1A0A2E 100%);
+    }
+    .guide-overlay.open{display:block}
+    .guide-close-bar{
+      position:sticky;top:0;z-index:10;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;height:60px;
+      background:rgba(10,8,22,0.9);
+      border-bottom:1px solid rgba(255,255,255,0.1);
+      backdrop-filter:blur(16px);
+    }
+    .guide-close-brand{display:flex;align-items:center;gap:12px}
+    .guide-close-wordmark{font-size:20px;font-weight:900;letter-spacing:-1px;color:var(--red)}
+    .guide-close-divider{width:1px;height:18px;background:rgba(255,255,255,0.1);margin:0 12px}
+    .guide-close-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.65);letter-spacing:0.06em}
+    .guide-close-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      padding:5px 12px;
+      background:rgba(101,65,242,0.18);border:1px solid rgba(101,65,242,0.4);
+      border-radius:100px;font-size:11px;font-weight:700;color:#A78BFA;
+    }
+    .guide-close-btn{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:7px 14px;
+      background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);
+      border-radius:100px;color:rgba(255,255,255,0.65);
+      font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
+      transition:background var(--ease),color var(--ease);
+      flex-shrink:0;
+    }
+    .guide-close-btn:hover{background:rgba(255,255,255,0.14);color:#fff}
+    /* 오버레이 내부 레이아웃 */
+    .guide-overlay .g-layout{max-width:780px;margin:0 auto;padding:48px 24px 96px}
+    .guide-overlay .g-hero{text-align:center;margin-bottom:56px}
+    .guide-overlay .g-eyebrow{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:5px 14px;background:var(--red-light);
+      border:1px solid rgba(250,46,67,0.3);border-radius:100px;
+      font-size:12px;font-weight:700;color:#FF6B7A;margin-bottom:20px;
+    }
+    .guide-overlay .g-title{font-size:32px;font-weight:900;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+    .guide-overlay .g-title .accent{
+      background:linear-gradient(135deg,var(--red) 0%,var(--violet) 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .guide-overlay .g-desc{font-size:15px;color:var(--t2);line-height:1.7;max-width:520px;margin:0 auto}
+    /* 목차 */
+    .guide-overlay .g-toc{
+      background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+      border-radius:var(--r-xl);padding:28px 32px;margin-bottom:56px;
+    }
+    .guide-overlay .g-toc-title{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px}
+    .guide-overlay .g-toc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+    .guide-overlay .g-toc-list a{
+      display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:var(--r-sm);
+      font-size:14px;font-weight:600;color:var(--t2);text-decoration:none;
+      transition:background var(--ease),color var(--ease);
+    }
+    .guide-overlay .g-toc-list a:hover{background:rgba(255,255,255,0.06);color:var(--t1)}
+    .guide-overlay .g-toc-num{
+      width:22px;height:22px;border-radius:50%;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:11px;font-weight:900;flex-shrink:0;
+    }
+    .guide-overlay .g-toc-num.red{background:var(--red-light);color:var(--red)}
+    .guide-overlay .g-toc-num.violet{background:rgba(101,65,242,0.18);color:#A78BFA}
+    .guide-overlay .g-toc-num.gold{background:rgba(251,196,0,0.15);color:#FBC400}
+    .guide-overlay .g-toc-num.green{background:rgba(55,180,45,0.15);color:#4ADE80}
+    .guide-overlay .g-toc-num.gray{background:rgba(255,255,255,0.07);color:var(--t2)}
+    /* 섹션 */
+    .guide-overlay .g-section{margin-bottom:56px;scroll-margin-top:80px}
+    .guide-overlay .g-section-header{
+      display:flex;align-items:center;gap:14px;margin-bottom:24px;
+      padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    .guide-overlay .g-step-badge{
+      width:36px;height:36px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:15px;font-weight:900;flex-shrink:0;
+    }
+    .guide-overlay .g-step-badge.red{background:var(--red-light);color:var(--red);border:1.5px solid rgba(255,0,25,0.3)}
+    .guide-overlay .g-step-badge.violet{background:rgba(101,65,242,0.18);color:#A78BFA;border:1.5px solid rgba(101,65,242,0.3)}
+    .guide-overlay .g-step-badge.gold{background:rgba(251,196,0,0.15);color:#FBC400;border:1.5px solid rgba(251,196,0,0.3)}
+    .guide-overlay .g-step-badge.green{background:rgba(55,180,45,0.15);color:#4ADE80;border:1.5px solid rgba(55,180,45,0.3)}
+    .guide-overlay .g-step-badge.gray{background:rgba(255,255,255,0.07);color:var(--t2);border:1.5px solid rgba(255,255,255,0.1)}
+    .guide-overlay .g-section-title{font-size:22px;font-weight:900;letter-spacing:-0.5px}
+    .guide-overlay .g-section-sub{font-size:13px;color:var(--t3);margin-top:2px}
+    /* 카드 */
+    .guide-overlay .g-card{
+      background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+      border-radius:var(--r-lg);padding:24px 28px;margin-bottom:16px;
+    }
+    .guide-overlay .g-card-title{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+    .guide-overlay .g-card-title .icon{font-size:18px}
+    .guide-overlay .g-card-body{font-size:14px;color:var(--t2);line-height:1.75}
+    .guide-overlay .g-card-body strong{color:var(--t1);font-weight:700}
+    .guide-overlay .g-card-body em{color:var(--red);font-style:normal;font-weight:700}
+    /* 스텝 리스트 */
+    .guide-overlay .g-steps{list-style:none;display:flex;flex-direction:column;gap:0}
+    .guide-overlay .g-step-item{
+      display:flex;gap:16px;padding:16px 0;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .guide-overlay .g-step-item:last-child{border-bottom:none}
+    .guide-overlay .g-step-circle{
+      width:28px;height:28px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:900;flex-shrink:0;
+      background:var(--red-light);color:var(--red);
+      border:1.5px solid rgba(255,0,25,0.3);margin-top:1px;
+    }
+    .guide-overlay .g-step-circle.v{background:rgba(101,65,242,0.18);color:#A78BFA;border-color:rgba(101,65,242,0.3)}
+    .guide-overlay .g-step-circle.g{background:rgba(251,196,0,0.12);color:#FBC400;border-color:rgba(251,196,0,0.25)}
+    .guide-overlay .g-step-circle.gr{background:rgba(55,180,45,0.12);color:#4ADE80;border-color:rgba(55,180,45,0.25)}
+    .guide-overlay .g-step-text{font-size:14px;color:var(--t2);line-height:1.7}
+    .guide-overlay .g-step-text strong{color:var(--t1);font-weight:700}
+    .guide-overlay .g-step-text em{color:var(--red);font-style:normal;font-weight:700}
+    /* 2컬럼 */
+    .guide-overlay .g-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:560px){.guide-overlay .g-grid2{grid-template-columns:1fr}}
+    /* 번호 볼 데모 */
+    .guide-overlay .g-ball{
+      width:36px;height:36px;border-radius:50%;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:13px;font-weight:900;color:#fff;flex-shrink:0;
+    }
+    .guide-overlay .g-ball.y{background:radial-gradient(circle at 35% 35%,#FFD84D,#FBC400,#C8950A)}
+    .guide-overlay .g-ball.b{background:radial-gradient(circle at 35% 35%,#5FB8FF,#0081C8,#00528A)}
+    .guide-overlay .g-ball.r{background:radial-gradient(circle at 35% 35%,#FF8080,#E03939,#A01515)}
+    .guide-overlay .g-balls-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .guide-overlay .g-ball-label{font-size:12px;color:var(--t3);font-weight:600}
+    /* 당첨 테이블 */
+    .guide-overlay .g-prize-table{width:100%;border-collapse:collapse;font-size:14px}
+    .guide-overlay .g-prize-table th{padding:10px 14px;font-size:11px;font-weight:700;color:var(--t3);letter-spacing:0.06em;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)}
+    .guide-overlay .g-prize-table td{padding:12px 14px;color:var(--t2);line-height:1.5;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .guide-overlay .g-prize-table tr:last-child td{border-bottom:none}
+    .guide-overlay .g-prize-table td:first-child{font-weight:800;white-space:nowrap}
+    .guide-overlay .rank-1{color:#FFD700}
+    .guide-overlay .rank-s{color:#C0C0C0}
+    .guide-overlay .rank-2{color:#FBC400}
+    .guide-overlay .rank-3{color:#4ADE80}
+    /* 노티스 */
+    .guide-overlay .g-notice{display:flex;gap:12px;padding:16px 18px;border-radius:var(--r-md);margin-bottom:12px}
+    .guide-overlay .g-notice.warn{background:rgba(251,196,0,0.08);border:1px solid rgba(251,196,0,0.25)}
+    .guide-overlay .g-notice.info{background:rgba(101,65,242,0.1);border:1px solid rgba(101,65,242,0.25)}
+    .guide-overlay .g-notice.tip{background:rgba(55,180,45,0.08);border:1px solid rgba(55,180,45,0.22)}
+    .guide-overlay .g-notice.danger{background:rgba(255,0,25,0.08);border:1px solid rgba(255,0,25,0.25)}
+    .guide-overlay .g-notice-icon{font-size:18px;flex-shrink:0;padding-top:1px}
+    .guide-overlay .g-notice-body{font-size:13px;line-height:1.65;color:var(--t2)}
+    .guide-overlay .g-notice-body strong{font-weight:700;color:var(--t1)}
+    .guide-overlay .g-notice.warn .g-notice-body strong{color:#FDE68A}
+    .guide-overlay .g-notice.info .g-notice-body strong{color:#C4B5FD}
+    .guide-overlay .g-notice.tip .g-notice-body strong{color:#86EFAC}
+    .guide-overlay .g-notice.danger .g-notice-body strong{color:#FCA5A5}
+    /* FAQ */
+    .guide-overlay .g-faq-item{border:1px solid rgba(255,255,255,0.1);border-radius:var(--r-md);margin-bottom:10px;overflow:hidden}
+    .guide-overlay .g-faq-q{
+      width:100%;display:flex;align-items:center;gap:12px;padding:16px 18px;
+      background:transparent;border:none;cursor:pointer;
+      font-family:inherit;font-size:14px;font-weight:700;color:var(--t1);
+      text-align:left;transition:background var(--ease);
+    }
+    .guide-overlay .g-faq-q:hover{background:rgba(255,255,255,0.04)}
+    .guide-overlay .g-faq-q-icon{font-size:16px;flex-shrink:0}
+    .guide-overlay .g-faq-q-text{flex:1}
+    .guide-overlay .g-faq-arrow{font-size:11px;color:var(--t3);flex-shrink:0;transition:transform var(--ease);user-select:none}
+    .guide-overlay .g-faq-item.open .g-faq-arrow{transform:rotate(180deg)}
+    .guide-overlay .g-faq-a{display:none;padding:0 18px 16px 46px;font-size:13px;color:var(--t2);line-height:1.7}
+    .guide-overlay .g-faq-item.open .g-faq-a{display:block}
+    .guide-overlay .g-faq-a strong{color:var(--t1);font-weight:700}
+    /* 플로우 */
+    .guide-overlay .g-flow{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin:16px 0}
+    .guide-overlay .g-flow-node{display:inline-flex;align-items:center;justify-content:center;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:700;white-space:nowrap}
+    .guide-overlay .g-flow-node.red{background:var(--red-light);color:#FF6B7A;border:1px solid rgba(255,0,25,0.3)}
+    .guide-overlay .g-flow-node.violet{background:rgba(101,65,242,0.18);color:#A78BFA;border:1px solid rgba(101,65,242,0.3)}
+    .guide-overlay .g-flow-node.gold{background:rgba(251,196,0,0.12);color:#FDE68A;border:1px solid rgba(251,196,0,0.25)}
+    .guide-overlay .g-flow-node.green{background:rgba(55,180,45,0.12);color:#86EFAC;border:1px solid rgba(55,180,45,0.22)}
+    .guide-overlay .g-flow-arrow{font-size:14px;color:var(--t3);margin:0 2px}
+    /* 탭 */
+    .guide-overlay .g-tabs{display:flex;gap:4px;background:rgba(255,255,255,0.05);border-radius:var(--r-md);padding:4px;margin-bottom:20px}
+    .guide-overlay .g-tab-btn{flex:1;padding:9px;border:none;border-radius:var(--r-sm);background:transparent;font-family:inherit;font-size:13px;font-weight:700;color:var(--t3);cursor:pointer;transition:background var(--ease),color var(--ease)}
+    .guide-overlay .g-tab-btn.active{background:rgba(255,255,255,0.1);color:var(--t1)}
+    .guide-overlay .g-tab-panel{display:none}
+    .guide-overlay .g-tab-panel.active{display:block}
+    /* 구분선 */
+    .guide-overlay .g-divider{border:none;border-top:1px solid rgba(255,255,255,0.1);margin:40px 0}
+    /* 맨위로 버튼 */
+    .guide-scroll-top{
+      position:fixed;bottom:28px;right:24px;
+      width:44px;height:44px;border-radius:50%;
+      background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);
+      display:none;align-items:center;justify-content:center;
+      font-size:18px;cursor:pointer;z-index:3100;
+      backdrop-filter:blur(8px);transition:background var(--ease);
+    }
+    .guide-scroll-top.show{display:flex}
+    .guide-scroll-top:hover{background:rgba(255,255,255,0.18)}
+    @media(max-width:600px){
+      .guide-overlay .g-title{font-size:26px}
+      .guide-overlay .g-layout{padding:32px 16px 80px}
+      .guide-overlay .g-toc{padding:20px}
+    }
+
+    /* S1 커피 보조 버튼 */
+    .btn-coffee-s1{
+      width:100%;padding:13px;margin-top:10px;
+      background:rgba(251,196,0,0.08);
+      border:1.5px solid rgba(251,196,0,0.3);
+      border-radius:var(--r-md);
+      color:#FBC400;font-size:14px;font-weight:700;font-family:inherit;
+      cursor:pointer;
+      transition:background var(--ease),border-color var(--ease);
+    }
+    .btn-coffee-s1:hover{
+      background:rgba(251,196,0,0.16);
+      border-color:rgba(251,196,0,0.55);
+    }
+    .balls-grid{
+      display:grid;grid-template-columns:repeat(9,1fr);
+      gap:8px;width:100%;max-width:520px;margin:0 auto;
+    }
+
+    /* ═══════════════════════════════════════
+       로또 볼 공통
+    ═══════════════════════════════════════ */
+    .ball{
+      aspect-ratio:1;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:800;color:white;
+      cursor:default;user-select:none;
+      transition:transform var(--ease),box-shadow var(--ease),opacity var(--ease);
+      position:relative;text-shadow:0 1px 2px rgba(0,0,0,0.4);
+    }
+    .ball::before{
+      content:'';position:absolute;inset:0;border-radius:50%;
+      background:radial-gradient(circle at 35% 30%,rgba(255,255,255,0.55) 0%,transparent 60%),
+                 radial-gradient(circle at 65% 75%,rgba(0,0,0,0.25) 0%,transparent 50%);
+    }
+    .ball-num{position:relative;z-index:1}
+    .ball-y{background:var(--ball-y);box-shadow:inset 0 -3px 6px rgba(0,0,0,0.3),0 4px 12px rgba(251,196,0,0.3)}
+    .ball-b{background:var(--ball-b);box-shadow:inset 0 -3px 6px rgba(0,0,0,0.3),0 4px 12px rgba(0,129,200,0.3)}
+    .ball-r{background:var(--ball-r);box-shadow:inset 0 -3px 6px rgba(0,0,0,0.3),0 4px 12px rgba(224,57,57,0.3)}
+    .ball-sm{width:44px;height:44px;font-size:13px}
+    .ball-xs{width:34px;height:34px;font-size:11px}
+    .ball-md{width:52px;height:52px;font-size:15px;font-weight:900}
+
+    .ball-selectable{cursor:pointer}
+    .ball-selectable:hover{transform:scale(1.12)}
+    .ball-selectable.selected{transform:scale(1.08);outline:3px solid white;outline-offset:2px}
+    .ball-selectable.disabled-ball{opacity:0.22;cursor:not-allowed;transform:none}
+
+    @keyframes ball-pop{
+      0%{opacity:0;transform:scale(0.3) rotate(-15deg)}
+      60%{transform:scale(1.2) rotate(5deg)}
+      100%{opacity:1;transform:scale(1) rotate(0)}
+    }
+    .ball-animate{animation:ball-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both}
+
+    /* 확정 버튼 */
+    .confirm-area{
+      padding:14px 20px;border-top:1px solid var(--border);
+      background:rgba(10,8,22,0.92);backdrop-filter:blur(8px);
+      position:sticky;bottom:0;
+    }
+    .btn-confirm{
+      width:100%;padding:16px;
+      background:linear-gradient(135deg,var(--red) 0%,var(--violet) 100%);
+      border:none;border-radius:var(--r-md);
+      color:white;font-size:16px;font-weight:800;font-family:inherit;
+      cursor:pointer;opacity:0.3;pointer-events:none;
+      box-shadow:0 8px 24px rgba(250,46,67,0.35);
+      transition:opacity var(--ease),transform var(--ease);
+    }
+    .btn-confirm.ready{opacity:1;pointer-events:auto}
+    .btn-confirm.ready:hover{opacity:0.9;transform:translateY(-1px)}
+
+    /* ═══════════════════════════════════════
+       화면 3 — 티켓
+    ═══════════════════════════════════════ */
+    .s3-body{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;padding:28px 20px 48px;
+    }
+    .ticket-section-label{
+      font-size:11px;font-weight:700;color:var(--t3);
+      letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;text-align:center;
+    }
+
+    /* 티켓 카드 */
+    .ticket-card{
+      width:100%;max-width:400px;background:#FFFDF5;
+      border-radius:20px;overflow:hidden;
+      box-shadow:var(--shadow),0 0 0 1px rgba(255,255,255,0.15);
+      margin-bottom:16px;
+    }
+    .ticket-header{
+      background:linear-gradient(135deg,var(--red) 0%,var(--violet) 100%);
+      padding:20px 24px 18px;text-align:center;position:relative;overflow:hidden;
+    }
+    .ticket-header::before{
+      content:'';position:absolute;inset:-50%;
+      background:radial-gradient(circle at 70% 30%,rgba(255,255,255,0.12) 0%,transparent 60%);
+      pointer-events:none;
+    }
+    .ticket-gonum{
+      width:64px;height:64px;object-fit:contain;
+      filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3));margin-bottom:6px;
+    }
+    .ticket-brand{font-size:10px;font-weight:800;color:rgba(255,255,255,0.75);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:3px}
+    .ticket-title{font-size:20px;font-weight:900;color:white;letter-spacing:-0.5px}
+    .ticket-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:3px}
+
+    .ticket-divider{
+      height:1px;background:repeating-linear-gradient(to right,#E5DFD0 0,#E5DFD0 8px,transparent 8px,transparent 14px);
+      position:relative;
+    }
+    .ticket-divider::before,.ticket-divider::after{
+      content:'';position:absolute;top:50%;transform:translateY(-50%);
+      width:18px;height:18px;border-radius:50%;background:#FFFDF5;
+    }
+    .ticket-divider::before{left:-9px}
+    .ticket-divider::after{right:-9px}
+
+    .ticket-body{padding:18px 22px 16px}
+    .ticket-info-row{
+      display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;
+    }
+    .ticket-info-label{font-size:10px;font-weight:700;color:#9B8E7A;letter-spacing:0.05em}
+    .ticket-info-value{font-size:13px;font-weight:800;color:#2D2416}
+
+    /* 5행 로또 숫자 테이블 */
+    .ticket-rows-section{margin-top:14px}
+    .ticket-rows-label{
+      font-size:10px;font-weight:700;color:#9B8E7A;letter-spacing:0.08em;
+      margin-bottom:10px;text-align:center;
+    }
+    .ticket-row-item{
+      display:flex;align-items:center;gap:8px;
+      padding:7px 8px;border-bottom:1px dashed #E5DFD0;
+    }
+    .ticket-row-item:last-child{border-bottom:none}
+    .ticket-row-label-text{
+      font-size:11px;font-weight:800;color:#C4A882;
+      width:18px;text-align:center;flex-shrink:0;
+    }
+    .ticket-row-balls{display:flex;gap:5px}
+
+    .ticket-footer{
+      padding:12px 22px;background:#F5EFE0;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .ticket-footer-date{font-size:10px;color:#9B8E7A;font-weight:600}
+    .ticket-footer-brand{
+      font-size:12px;font-weight:900;color:var(--red);letter-spacing:-0.2px;
+    }
+
+    /* 당첨 기준 박스 */
+    .prize-box{
+      width:100%;max-width:400px;
+      background:rgba(255,255,255,0.04);border:1px solid var(--border);
+      border-radius:var(--r-md);padding:14px 16px;margin-bottom:12px;
+    }
+    .prize-box-title{
+      font-size:10px;font-weight:700;color:var(--t3);
+      letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;
+    }
+    .prize-list{display:flex;flex-direction:column;gap:7px}
+    .prize-item{display:flex;align-items:center;gap:10px}
+    .prize-badge{
+      font-size:10px;font-weight:800;padding:3px 9px;
+      border-radius:100px;flex-shrink:0;min-width:52px;text-align:center;
+    }
+    .prize-badge-sp{background:linear-gradient(135deg,var(--red),var(--violet));color:white}
+    .prize-badge-1{background:#FBC400;color:#2D2416}
+    .prize-badge-2{background:#0081C8;color:white}
+    .prize-badge-3{background:rgba(255,255,255,0.14);color:var(--t2)}
+    .prize-desc{font-size:12px;color:var(--t2)}
+    .prize-pending{font-size:12px;color:var(--t2);text-align:center;padding:4px 0}
+    /* 당첨번호 표시 */
+    .win-numbers-display{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;margin-bottom:10px;
+      background:rgba(251,196,0,0.07);border:1px solid rgba(251,196,0,0.25);
+      border-radius:var(--r-sm);
+    }
+    .win-numbers-label{font-size:11px;font-weight:700;color:#FBC400;flex-shrink:0}
+    .win-numbers-balls{display:flex;gap:5px;flex-wrap:wrap}
+    .prize-result-banner{
+      padding:10px 14px;border-radius:var(--r-sm);margin-bottom:10px;
+      font-size:13px;text-align:center;
+    }
+    .prize-winner{background:rgba(251,196,0,0.1);border:1px solid rgba(251,196,0,0.35);color:#FDE68A}
+    .prize-none{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--t2)}
+
+    /* S3 액션 버튼 */
+    .s3-actions{display:flex;flex-direction:column;gap:10px;width:100%;max-width:400px;margin-top:4px}
+    .btn-coffee-main{
+      width:100%;padding:16px;
+      background:rgba(251,196,0,0.12);border:1.5px solid rgba(251,196,0,0.4);
+      border-radius:var(--r-md);color:#FBC400;
+      font-size:15px;font-weight:800;font-family:inherit;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:background var(--ease),border-color var(--ease),opacity var(--ease);
+    }
+    .btn-coffee-main:hover:not(:disabled){background:rgba(251,196,0,0.2);border-color:rgba(251,196,0,0.65)}
+    .btn-coffee-main:disabled{opacity:0.45;cursor:not-allowed;background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:var(--t2)}
+    .btn-save{
+      width:100%;padding:15px;
+      background:linear-gradient(135deg,var(--red),var(--violet));
+      border:none;border-radius:var(--r-md);color:white;
+      font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:opacity var(--ease),transform var(--ease);
+    }
+    .btn-save:hover{opacity:0.9;transform:translateY(-1px)}
+    .btn-watch{
+      width:100%;padding:14px;
+      background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.15);
+      border-radius:var(--r-md);color:var(--t1);
+      font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;
+      transition:background var(--ease),border-color var(--ease);
+    }
+    .btn-watch:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.3)}
+    .btn-restart{
+      width:100%;padding:10px;background:transparent;border:none;
+      color:var(--t3);font-size:12px;font-weight:500;font-family:inherit;
+      cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+      transition:color var(--ease);
+    }
+    .btn-restart:hover{color:var(--t2)}
+
+    /* ═══════════════════════════════════════
+       화면 4 — 커피 수령 (PRD 전면 반영)
+    ═══════════════════════════════════════ */
+    .s4-body{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:24px 20px 40px;gap:0;
+      min-height:0;
+    }
+
+    /* 전체 카드 */
+    .coffee-card{
+      width:100%;max-width:440px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--border);
+      border-radius:var(--r-xl);
+      overflow:hidden;
+      transition:border-color 0.4s;
+    }
+    .coffee-card.state-claimed{
+      border-color:rgba(55,180,45,0.45);
+      box-shadow:0 0 40px rgba(55,180,45,0.08);
+    }
+
+    /* 헤더 밴드 */
+    .coffee-card-header{
+      padding:36px 28px 24px;
+      text-align:center;
+      border-bottom:1px solid var(--border);
+      display:flex;flex-direction:column;align-items:center;gap:12px;
+    }
+    .coffee-card-icon{
+      width:96px;height:96px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      /* 이모지 화질: 벡터 렌더링을 위해 font-size 키우고 image-rendering 지정 */
+      font-size:52px;line-height:1;
+      text-rendering:geometricPrecision;
+      -webkit-font-smoothing:antialiased;
+      background:rgba(251,196,0,0.12);
+      border:2px solid rgba(251,196,0,0.3);
+      transition:background 0.4s,border-color 0.4s;
+    }
+    .coffee-card.state-claimed .coffee-card-icon{
+      background:rgba(55,180,45,0.12);
+      border-color:rgba(55,180,45,0.35);
+    }
+    .coffee-title{
+      font-size:20px;font-weight:900;letter-spacing:-0.5px;
+      color:var(--t1);
+    }
+    .coffee-person{
+      font-size:13px;color:var(--t2);line-height:1.55;
+    }
+    .coffee-person strong{color:var(--t1);font-weight:800;}
+
+    /* 상태 패널 */
+    .coffee-status-panel{
+      padding:20px 24px;
+      display:flex;flex-direction:column;gap:20px;
+    }
+
+    /* 상태 박스 */
+    .coffee-status-box{
+      padding:16px 18px;border-radius:var(--r-md);
+      display:flex;align-items:flex-start;gap:12px;
+      transition:background 0.35s,border-color 0.35s;
+    }
+    .coffee-status-box.state-loading{
+      background:rgba(255,255,255,0.04);border:1px solid var(--border);
+    }
+    .coffee-status-box.state-unclaimed{
+      background:rgba(251,196,0,0.08);border:1px solid rgba(251,196,0,0.3);
+    }
+    .coffee-status-box.state-claimed{
+      background:rgba(55,180,45,0.09);border:1px solid rgba(55,180,45,0.35);
+    }
+    .coffee-status-box.state-error{
+      background:rgba(255,0,25,0.08);border:1px solid rgba(255,0,25,0.3);
+    }
+    .coffee-state-icon{font-size:22px;line-height:1;flex-shrink:0;padding-top:1px}
+    .coffee-state-body{flex:1;min-width:0}
+    .coffee-state-title{font-size:14px;font-weight:800;margin-bottom:3px}
+    .state-unclaimed .coffee-state-title{color:#FBC400}
+    .state-claimed .coffee-state-title{color:#37B42D}
+    .state-error .coffee-state-title{color:#FF6B7A}
+    .state-loading .coffee-state-title{color:var(--t2)}
+    .coffee-state-sub{font-size:12px;color:var(--t3);line-height:1.5}
+    .coffee-claimed-time{font-size:12px;color:var(--t3);margin-top:4px;display:none}
+    .coffee-claimed-time.show{display:block}
+
+    /* 로딩 스피너 */
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spinner{
+      width:20px;height:20px;border-radius:50%;
+      border:2.5px solid rgba(255,255,255,0.15);
+      border-top-color:var(--t2);
+      animation:spin 0.75s linear infinite;
+      flex-shrink:0;
+    }
+
+    /* CTA 버튼 */
+    .btn-claim{
+      width:100%;padding:17px;
+      background:linear-gradient(135deg,#FBC400 0%,#F59E0B 100%);
+      border:none;border-radius:var(--r-md);
+      color:#1A0A00;font-size:16px;font-weight:900;font-family:inherit;
+      cursor:pointer;letter-spacing:-0.3px;
+      box-shadow:0 8px 24px rgba(251,196,0,0.35);
+      transition:opacity var(--ease),transform var(--ease),background var(--ease);
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .btn-claim:hover:not(:disabled){opacity:0.9;transform:translateY(-1px)}
+    .btn-claim:active:not(:disabled){transform:translateY(0)}
+    .btn-claim:disabled{
+      opacity:1;cursor:not-allowed;transform:none;
+      box-shadow:none;
+      background:rgba(55,180,45,0.2);
+      border:1px solid rgba(55,180,45,0.4);
+      color:#37B42D;
+    }
+    .btn-claim.state-loading-btn{
+      background:rgba(255,255,255,0.07);
+      border:1px solid var(--border);
+      color:var(--t2);
+      box-shadow:none;
+    }
+    .btn-claim.state-error-btn{
+      background:rgba(255,0,25,0.12);
+      border:1px solid rgba(255,0,25,0.35);
+      color:#FF6B7A;
+      box-shadow:none;
+    }
+
+    /* 보조 버튼 */
+    .btn-back-ticket{
+      width:100%;padding:13px;
+      background:transparent;border:1px solid var(--border);
+      border-radius:var(--r-md);color:var(--t2);
+      font-size:14px;font-weight:600;font-family:inherit;
+      cursor:pointer;
+      transition:background var(--ease),border-color var(--ease);
+    }
+    .btn-back-ticket:hover{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.25)}
+
+    /* 성공 축하 배너 */
+    .coffee-congrats{
+      display:none;
+      padding:14px 18px;margin:0 24px 4px;
+      background:linear-gradient(135deg,rgba(55,180,45,0.12),rgba(55,180,45,0.06));
+      border:1px solid rgba(55,180,45,0.3);
+      border-radius:var(--r-md);text-align:center;
+      font-size:13px;font-weight:700;color:#37B42D;
+      line-height:1.55;
+    }
+    .coffee-congrats.show{display:block}
+
+    /* ═══════════════════════════════════════
+       모달
+    ═══════════════════════════════════════ */
+    .modal-overlay{
+      display:none;position:fixed;inset:0;
+      background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+      z-index:1000;align-items:center;justify-content:center;padding:24px;
+    }
+    .modal-overlay.open{display:flex}
+    .modal-card{
+      background:linear-gradient(160deg,#1A1033 0%,#0F0A24 100%);
+      border:1px solid rgba(255,255,255,0.12);border-radius:var(--r-xl);
+      padding:32px 28px;width:100%;max-width:380px;text-align:center;
+      animation:modal-in 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modal-in{from{opacity:0;transform:scale(0.88) translateY(16px)}to{opacity:1;transform:none}}
+    .modal-emoji{
+      margin-bottom:16px;display:flex;justify-content:center;
+    }
+    .modal-emoji img{width:72px;height:72px;object-fit:contain}
+    .modal-title{font-size:20px;font-weight:900;margin-bottom:10px;letter-spacing:-0.5px}
+    .modal-desc{font-size:14px;color:var(--t2);line-height:1.65;margin-bottom:12px}
+    .modal-warning{
+      display:flex;align-items:center;gap:8px;
+      padding:11px 14px;background:rgba(250,46,67,0.1);
+      border:1px solid rgba(250,46,67,0.25);border-radius:var(--r-sm);
+      margin-bottom:24px;text-align:left;
+    }
+    .modal-warning-text{font-size:12px;color:#FF8090;font-weight:700}
+    .modal-balls-preview{
+      display:flex;flex-direction:column;gap:7px;
+      width:100%;margin-bottom:20px;overflow:hidden;
+    }
+    .modal-preview-row{
+      display:flex;align-items:center;gap:7px;flex-wrap:nowrap;
+    }
+    .modal-preview-row-label{
+      font-size:11px;font-weight:900;color:var(--red);
+      width:18px;flex-shrink:0;text-align:center;
+    }
+    .modal-preview-row-balls{
+      display:flex;gap:6px;align-items:center;flex-shrink:0;
+    }
+    .modal-actions{display:flex;gap:10px}
+    .btn-modal-cancel{
+      flex:1;padding:13px;background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.12);border-radius:var(--r-md);
+      color:var(--t2);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;
+      transition:background var(--ease);
+    }
+    .btn-modal-cancel:hover{background:rgba(255,255,255,0.12)}
+    .btn-modal-confirm{
+      flex:1.4;padding:13px;
+      background:linear-gradient(135deg,var(--red),var(--violet));
+      border:none;border-radius:var(--r-md);
+      color:white;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;
+      transition:opacity var(--ease);
+    }
+    .btn-modal-confirm:hover{opacity:0.9}
+
+    /* ═══════════════════════════════════════
+       Skip 버튼
+    ═══════════════════════════════════════ */
+    .btn-skip-draw{
+      position:absolute;bottom:32px;right:28px;
+      padding:10px 22px;
+      background:rgba(255,255,255,0.1);
+      border:1.5px solid rgba(255,255,255,0.25);
+      border-radius:100px;
+      color:var(--t2);font-size:13px;font-weight:700;font-family:inherit;
+      cursor:pointer;
+      transition:background var(--ease),border-color var(--ease),color var(--ease);
+      z-index:10;
+    }
+    .btn-skip-draw:hover{
+      background:rgba(255,255,255,0.18);
+      border-color:rgba(255,255,255,0.55);
+      color:var(--t1);
+    }
+
+    /* ═══════════════════════════════════════
+       추첨 드라마틱 오버레이
+    ═══════════════════════════════════════ */
+    .draw-overlay{
+      position:fixed;inset:0;
+      background:rgba(4,2,14,0.94);backdrop-filter:blur(10px);
+      z-index:3000;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:20px;
+      opacity:0;pointer-events:none;transition:opacity 0.3s;
+    }
+    .draw-overlay.active{opacity:1;pointer-events:all}
+    .draw-machine-wrap{
+      width:220px;height:220px;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .draw-machine-img{
+      width:220px;height:220px;object-fit:contain;
+      filter:drop-shadow(0 0 48px rgba(250,46,67,0.65));
+    }
+    .draw-label{
+      font-size:22px;font-weight:900;color:white;letter-spacing:-0.3px;
+      animation:draw-pulse 0.65s ease-in-out infinite alternate;
+    }
+    @keyframes draw-pulse{
+      from{opacity:0.55;transform:scale(0.96)}
+      to{opacity:1;transform:scale(1.04)}
+    }
+    .draw-balls-row{
+      display:flex;gap:10px;justify-content:center;min-height:56px;align-items:center;
+    }
+    .draw-slot{
+      width:52px;height:52px;border-radius:50%;
+      border:2.5px dashed rgba(255,255,255,0.22);
+      display:flex;align-items:center;justify-content:center;
+      font-size:17px;font-weight:800;color:rgba(255,255,255,0.2);
+      transition:all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    .draw-slot.revealed{
+      border:none;
+      animation:slot-reveal 0.45s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+    }
+    @keyframes slot-reveal{
+      0%{transform:scale(0) rotate(-180deg);opacity:0}
+      70%{transform:scale(1.25) rotate(8deg)}
+      100%{transform:scale(1) rotate(0);opacity:1}
+    }
+    .draw-row-indicator{
+      font-size:13px;font-weight:700;color:rgba(250,46,67,0.9);letter-spacing:0.06em;
+    }
+
+    /* ═══════════════════════════════════════
+       슬롯 애니메이션 / 기타
+    ═══════════════════════════════════════ */
+    @keyframes slot-fill{0%{opacity:0;transform:scale(0.5)}100%{opacity:1;transform:scale(1)}}
+    .slot-filled-anim{animation:slot-fill 0.2s cubic-bezier(0.34,1.56,0.64,1) both}
+
+    /* ═══════════════════════════════════════
+       토스트
+    ═══════════════════════════════════════ */
+    .toast{
+      position:fixed;bottom:32px;left:50%;
+      transform:translateX(-50%) translateY(20px);
+      background:rgba(20,16,40,0.97);border:1px solid rgba(255,255,255,0.15);
+      border-radius:var(--r-md);padding:12px 20px;
+      font-size:14px;font-weight:700;color:white;
+      display:flex;align-items:center;gap:8px;
+      opacity:0;transition:opacity 0.3s,transform 0.3s;
+      z-index:4000;white-space:nowrap;pointer-events:none;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    /* ═══════════════════════════════════════
+       반응형
+    ═══════════════════════════════════════ */
+    @media(max-width:480px){
+      .balls-grid{grid-template-columns:repeat(7,1fr);gap:6px}
+      .auto-rows-result{max-width:100%}
+      .ball-md{width:42px;height:42px;font-size:13px}
+      .event-title{font-size:26px}
+      .modal-card{padding:24px 18px}
+      .draw-machine-img{width:160px;height:160px}
+      .btn-skip-draw{bottom:20px;right:16px;font-size:12px;padding:8px 16px}
+    }
+    @media(min-width:1280px){
+      .header{padding:0 40px}
+      .ticket-card,.s3-actions,.prize-box{max-width:480px}
+      .balls-grid{grid-template-columns:repeat(9,1fr)}
+      .auto-rows-result{max-width:600px}
+    }
+    @media(max-width:320px){
+      .form-card{padding:24px 16px}
+      .form-input,.form-select{font-size:14px;padding:12px 12px}
+      .balls-grid{grid-template-columns:repeat(6,1fr);gap:4px}
+      .ball-md{width:38px;height:38px;font-size:12px}
+      .s1-body{padding:24px 12px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .ball-animate,.slot-filled-anim,.draw-label{animation:none}
+      .gonum-character{animation:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     화면 1 — 참여 입력
+════════════════════════════════════════════ -->
+<section id="screen-1" class="screen active" role="main" aria-label="참여 정보 입력">
+  <header class="header">
+    <div class="header-brand">
+      <a class="header-logo-box" href="#" aria-label="HUNET 홈">
+        <span class="hu-wordmark"><em>HU</em>NET</span>
+      </a>
+      <div class="header-divider" aria-hidden="true"></div>
+      <span class="header-event-label">사우회 로또 이벤트 2026</span>
+    </div>
+    <a href="https://365.hunet.co.kr/Lvb/Home" target="_blank" rel="noopener noreferrer"
+       class="btn-broadcast" aria-label="당첨번호 방송 새 탭으로 보기">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <polygon points="10,8 10,16 17,12" fill="currentColor"/>
+      </svg>
+      방송 보기
+    </a>
+  </header>
+
+  <div class="s1-body">
+    <div class="event-hero">
+      <div class="gonum-hero-wrap" aria-hidden="true">
+        <img id="gonum-hero-img"
+             src="고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_01.png"
+             class="gonum-character" alt="고놈 캐릭터" />
+      </div>
+      <div class="ci-bar" aria-hidden="true">
+        <span class="ci-dot"></span>HUNET 사우회 주최<span class="ci-dot"></span>2026<span class="ci-dot"></span>
+      </div>
+      <div class="event-badge" role="status"><span aria-hidden="true">🎰</span> 사내 로또 이벤트</div>
+      <h1 class="event-title">나만의 번호를<br /><span>직접 골라봐요</span></h1>
+      <p class="event-desc">1~27번 중 5개씩, 5줄을 선택하고<br />당첨 방송을 함께 확인해요</p>
+    </div>
+
+    <div class="form-card" role="form" aria-label="참여자 정보 입력">
+      <div class="form-group">
+        <label class="form-label" for="input-dept">본부</label>
+        <select id="input-dept" class="form-input form-select" aria-required="true">
+          <option value="">본부를 선택하세요</option>
+          <option value="교육사업본부">교육사업본부</option>
+          <option value="교육서비스본부">교육서비스본부</option>
+          <option value="L&D테크본부">L&D테크본부</option>
+          <option value="휴넷 L&D연구원">휴넷 L&D연구원</option>
+          <option value="인재경영실">인재경영실</option>
+          <option value="전략경영실">전략경영실</option>
+          <option value="커뮤니케이션실">커뮤니케이션실</option>
+        </select>
+      </div>
+      <div class="form-group-team team-indent" id="form-group-team">
+        <label class="form-label" for="input-team">팀</label>
+        <select id="input-team" class="form-input form-select" aria-required="true">
+          <option value="">팀을 선택하세요</option>
+          <option value="교육운영1팀">교육운영1팀</option>
+          <option value="교육운영2팀">교육운영2팀</option>
+          <option value="교육운영3팀">교육운영3팀</option>
+          <option value="하이브리드러닝운영팀">하이브리드러닝운영팀</option>
+          <option value="컨텐츠매니지먼트팀">컨텐츠매니지먼트팀</option>
+          <option value="고객행복팀">고객행복팀</option>
+          <option value="교육지원팀">교육지원팀</option>
+          <option value="해당 없음">해당 없음</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="input-name">이름</label>
+        <input type="text" id="input-name" class="form-input"
+          placeholder="이름을 입력하세요" maxlength="10"
+          autocomplete="off" aria-required="true" />
+      </div>
+      <div class="form-notice">
+        <span class="form-notice-icon">⚠️</span>
+        <span class="form-notice-text">
+          <strong>본부명과 이름이 일치해야</strong> 당첨 후 상품 지급이 가능합니다.
+        </span>
+      </div>
+
+      <button id="btn-start" class="btn-primary" onclick="handleStart()">
+        번호 선택하러 가기
+      </button>
+      <button class="btn-coffee-s1" onclick="handleCoffeeOnly()">
+        ☕ 커피만 수령하기
+      </button>
+    </div>
+
+    <!-- 사용 가이드 링크 -->
+    <div class="guide-link-wrap">
+      <button class="btn-guide" onclick="openGuide()" aria-label="사용 설명서 열기">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="16" r="1" fill="currentColor"/>
+        </svg>
+        사용 설명서 보기
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     화면 2 — 번호 선택 (5행×5개)
+════════════════════════════════════════════ -->
+<section id="screen-2" class="screen" role="main" aria-label="번호 선택">
+  <header class="header">
+    <div class="header-brand">
+      <a class="header-logo-box" href="#" aria-label="HUNET 홈">
+        <span class="hu-wordmark"><em>HU</em>NET</span>
+      </a>
+      <div class="header-divider" aria-hidden="true"></div>
+      <span class="header-event-label" id="header-user-info">번호 선택</span>
+    </div>
+    <a href="https://365.hunet.co.kr/Lvb/Home" target="_blank" rel="noopener noreferrer"
+       class="btn-broadcast" aria-label="방송 새 탭으로 보기">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <polygon points="10,8 10,16 17,12" fill="currentColor"/>
+      </svg>
+      방송 보기
+    </a>
+  </header>
+
+  <!-- 탭 -->
+  <div class="tab-bar" role="tablist" aria-label="번호 선택 방식">
+    <button class="tab-btn active" role="tab" aria-selected="true" id="tab-btn-auto" onclick="switchTab('auto')">🎲 자동 추첨</button>
+    <button class="tab-btn" role="tab" aria-selected="false" id="tab-btn-manual" onclick="switchTab('manual')">✋ 수동 선택</button>
+  </div>
+
+  <div class="screen-2-body" style="flex:1;display:flex;flex-direction:column">
+    <!-- 자동 탭 -->
+    <div id="tab-auto" class="tab-content active" role="tabpanel">
+      <div class="auto-tab-body">
+        <div class="auto-machine-wrap" aria-hidden="true">
+          <img id="auto-machine-img" src="로또추첨기_PNG/01_PNG/lotto_machine_01.png"
+               class="auto-machine-img" alt="로또 추첨기" />
+        </div>
+        <h2 class="auto-tab-title">행운의 번호 자동 추첨</h2>
+        <p class="auto-tab-desc">버튼을 누르면 1~27 중에서<br />5개씩 5줄이 한 번에 완성돼요</p>
+        <!-- 자동 결과 5행 표시 -->
+        <div class="auto-rows-result" id="auto-rows-result" aria-live="polite"></div>
+        <button id="btn-auto" class="btn-auto" onclick="runAutoLotto()" aria-label="자동 추첨 실행">
+          🎲 자동 추첨
+        </button>
+      </div>
+    </div>
+
+    <!-- 수동 탭 — 통합 행 목록 + 그리드 -->
+    <div id="tab-manual" class="tab-content" role="tabpanel">
+      <div class="manual-tab-body">
+
+        <!-- A~E 통합 행 목록 (JS가 업데이트) -->
+        <div class="manual-rows-list" id="manual-rows-list" role="list">
+          <div class="mentry mentry-active" id="mentry-0" onclick="switchManualRow(0)" role="listitem" tabindex="0">
+            <span class="mentry-label">A</span>
+            <div class="mentry-content" id="mentry-content-0">
+              <span class="mentry-empty-text">번호를 선택하세요</span>
+            </div>
+          </div>
+          <div class="mentry" id="mentry-1" onclick="switchManualRow(1)" role="listitem" tabindex="0">
+            <span class="mentry-label">B</span>
+            <div class="mentry-content" id="mentry-content-1">
+              <span class="mentry-empty-text">번호를 선택하세요</span>
+            </div>
+          </div>
+          <div class="mentry" id="mentry-2" onclick="switchManualRow(2)" role="listitem" tabindex="0">
+            <span class="mentry-label">C</span>
+            <div class="mentry-content" id="mentry-content-2">
+              <span class="mentry-empty-text">번호를 선택하세요</span>
+            </div>
+          </div>
+          <div class="mentry" id="mentry-3" onclick="switchManualRow(3)" role="listitem" tabindex="0">
+            <span class="mentry-label">D</span>
+            <div class="mentry-content" id="mentry-content-3">
+              <span class="mentry-empty-text">번호를 선택하세요</span>
+            </div>
+          </div>
+          <div class="mentry" id="mentry-4" onclick="switchManualRow(4)" role="listitem" tabindex="0">
+            <span class="mentry-label">E</span>
+            <div class="mentry-content" id="mentry-content-4">
+              <span class="mentry-empty-text">번호를 선택하세요</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 현재 행 번호 그리드 -->
+        <div class="manual-grid-area">
+          <p class="manual-hint" id="manual-hint">A행 — 1~27 중 5개를 선택하세요 (0/5)</p>
+          <div class="balls-grid" id="balls-grid" role="group" aria-label="번호 선택 그리드">
+            <!-- JS로 생성 -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 확정 버튼 -->
+    <div class="confirm-area">
+      <button id="btn-confirm" class="btn-confirm" onclick="openConfirmModal()" aria-disabled="true">
+        5줄 모두 확정하기
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     화면 3 — 내 티켓
+════════════════════════════════════════════ -->
+<section id="screen-3" class="screen" role="main" aria-label="내 로또 티켓">
+  <header class="header">
+    <div class="header-brand">
+      <a class="header-logo-box" href="#" aria-label="HUNET 홈">
+        <span class="hu-wordmark"><em>HU</em>NET</span>
+      </a>
+      <div class="header-divider" aria-hidden="true"></div>
+      <span class="header-event-label">내 티켓 확인</span>
+    </div>
+    <a href="https://365.hunet.co.kr/Lvb/Home" target="_blank" rel="noopener noreferrer"
+       class="btn-broadcast" aria-label="방송 새 탭으로 보기">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <polygon points="10,8 10,16 17,12" fill="currentColor"/>
+      </svg>
+      방송 보기
+    </a>
+  </header>
+
+  <div class="s3-body">
+    <p class="ticket-section-label">🎟️ My Lotto Ticket</p>
+
+    <!-- 티켓 카드 (이미지 저장 범위) -->
+    <div class="ticket-card" id="ticket-card" aria-label="로또 티켓">
+      <div class="ticket-header">
+        <img id="ticket-gonum-img"
+             src="고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_01.png"
+             class="ticket-gonum" alt="" aria-hidden="true" />
+        <div class="ticket-brand">HUNET LOTTO 2026</div>
+        <div class="ticket-title">사우회 로또 이벤트</div>
+        <div class="ticket-sub">행운을 빕니다 🍀</div>
+      </div>
+
+      <div class="ticket-divider" aria-hidden="true"></div>
+
+      <div class="ticket-body">
+        <div class="ticket-info-row">
+          <span class="ticket-info-label">이름</span>
+          <span class="ticket-info-value" id="ticket-name">–</span>
+        </div>
+        <div class="ticket-info-row">
+          <span class="ticket-info-label">본부</span>
+          <span class="ticket-info-value" id="ticket-dept">–</span>
+        </div>
+        <!-- 5행 번호 -->
+        <div class="ticket-rows-section">
+          <div class="ticket-rows-label">선택 번호 (5줄)</div>
+          <div id="ticket-rows-list"><!-- JS로 생성 --></div>
+        </div>
+      </div>
+
+      <div class="ticket-footer">
+        <span class="ticket-footer-date" id="ticket-date">–</span>
+        <span class="ticket-footer-brand">HUNET</span>
+      </div>
+    </div>
+
+    <!-- 당첨 기준 -->
+    <div class="prize-box" aria-label="당첨 기준 안내">
+      <div class="prize-box-title">당첨 기준</div>
+      <div id="prize-content"><!-- JS 렌더링 --></div>
+    </div>
+
+    <!-- 액션 버튼들 -->
+    <div class="s3-actions">
+      <button id="btn-coffee-s3" class="btn-coffee-main" onclick="goToScreen4()" aria-label="커피 수령하러 가기">
+        ☕ 커피 수령하기
+      </button>
+      <button class="btn-save" onclick="saveTicketImage()" aria-label="티켓 이미지 저장">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 16l-4-4h3V4h2v8h3l-4 4z" fill="currentColor"/>
+          <path d="M4 18h16v2H4v-2z" fill="currentColor"/>
+        </svg>
+        이미지로 저장
+      </button>
+      <a href="https://365.hunet.co.kr/Lvb/Home" target="_blank" rel="noopener noreferrer"
+         class="btn-watch" aria-label="방송 새 탭으로 보기">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 20h8M12 18v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <polygon points="10,9 10,14 15,11.5" fill="currentColor"/>
+        </svg>
+        당첨번호 방송 보기
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     화면 4 — 커피 수령 (PRD 반영)
+════════════════════════════════════════════ -->
+<section id="screen-4" class="screen" role="main" aria-label="커피 수령">
+  <header class="header">
+    <div class="header-brand">
+      <a class="header-logo-box" href="#" aria-label="HUNET 홈">
+        <span class="hu-wordmark"><em>HU</em>NET</span>
+      </a>
+      <div class="header-divider" aria-hidden="true"></div>
+      <span class="header-event-label">커피 수령</span>
+    </div>
+    <a href="https://365.hunet.co.kr/Lvb/Home" target="_blank" rel="noopener noreferrer"
+       class="btn-broadcast" aria-label="방송 새 탭으로 보기">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <polygon points="10,8 10,16 17,12" fill="currentColor"/>
+      </svg>
+      방송 보기
+    </a>
+  </header>
+
+  <div class="s4-body">
+    <div class="coffee-card" id="coffee-card">
+
+      <!-- 카드 헤더 -->
+      <div class="coffee-card-header">
+        <div class="coffee-card-icon" id="coffee-card-icon" aria-hidden="true">☕</div>
+        <h2 class="coffee-title">커피 수령 확인</h2>
+        <p class="coffee-person" id="coffee-person-info">참여자 정보를 확인 중입니다</p>
+      </div>
+
+      <!-- 상태 패널 -->
+      <div class="coffee-status-panel">
+
+        <!-- 상태 박스 (JS가 state-* 클래스 교체) -->
+        <div class="coffee-status-box state-loading" id="coffee-status-box" role="status" aria-live="polite">
+          <div class="spinner" id="coffee-spinner" aria-hidden="true"></div>
+          <div class="coffee-state-body">
+            <div class="coffee-state-title" id="coffee-status-text">수령 상태 확인 중…</div>
+            <div class="coffee-state-sub" id="coffee-status-sub">잠시만 기다려 주세요</div>
+          </div>
+        </div>
+
+        <!-- 수령 완료 시각 (claimed 상태에서만 노출) -->
+        <div class="coffee-claimed-time" id="coffee-claimed-at" aria-live="polite"></div>
+
+        <!-- 성공 축하 배너 -->
+        <div class="coffee-congrats" id="coffee-congrats" role="status">
+          🎉 수령이 완료되었습니다!<br />
+          <span style="font-weight:500;font-size:12px;opacity:0.8">감사합니다. 커피 즐겁게 드세요 ☕</span>
+        </div>
+
+        <!-- CTA -->
+        <button id="btn-claim" class="btn-claim state-loading-btn"
+                onclick="openCoffeeModal()" disabled
+                aria-label="커피 수령 완료 처리">
+          <div class="spinner" id="btn-claim-spinner" style="width:16px;height:16px;border-width:2px" aria-hidden="true"></div>
+          상태 확인 중…
+        </button>
+
+        <!-- 보조 버튼 (rows 확정 여부에 따라 텍스트·동작 분기) -->
+        <button class="btn-back-ticket" id="btn-back-ticket" onclick="handleBackFromCoffee()">
+          ← 내 티켓으로 돌아가기
+        </button>
+
+      </div><!-- /coffee-status-panel -->
+    </div><!-- /coffee-card -->
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     번호 확정 모달
+════════════════════════════════════════════ -->
+<div id="modal-confirm" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-confirm-title">
+  <div class="modal-card">
+    <div class="modal-emoji" aria-hidden="true">
+      <img id="modal-gonum-img"
+           src="고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_01.png" alt="" />
+    </div>
+    <h2 class="modal-title" id="modal-confirm-title">5줄 번호를 확정할까요?</h2>
+    <p class="modal-desc">선택하신 번호로 티켓을 생성합니다.</p>
+    <div id="modal-balls-preview" class="modal-balls-preview" aria-label="확정할 번호 미리보기"></div>
+    <div class="modal-warning" role="alert">
+      <span aria-hidden="true">⚠️</span>
+      <span class="modal-warning-text">제출 후에는 번호를 변경할 수 없습니다</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeConfirmModal()">취소</button>
+      <button class="btn-modal-confirm" onclick="submitTicket()">확정하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     커피 수령 확인 모달
+════════════════════════════════════════════ -->
+<div id="modal-coffee" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-coffee-title">
+  <div class="modal-card">
+    <div class="modal-emoji" aria-hidden="true" style="font-size:60px">☕</div>
+    <h2 class="modal-title" id="modal-coffee-title">커피를 수령하셨나요?</h2>
+    <p class="modal-desc" style="margin-bottom:28px">확인 후에는 변경할 수 없습니다.</p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeCoffeeModal()">취소</button>
+      <button class="btn-modal-confirm" onclick="confirmCoffee()" style="background:linear-gradient(135deg,#FBC400,#F59E0B);color:#1A0A00">수령하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     추첨 드라마틱 오버레이
+════════════════════════════════════════════ -->
+<div id="draw-overlay" class="draw-overlay" role="status" aria-live="assertive">
+  <div class="draw-machine-wrap" aria-hidden="true">
+    <img id="draw-machine-img" src="로또추첨기_PNG/01_PNG/lotto_machine_01.png"
+         class="draw-machine-img" alt="추첨기 애니메이션" />
+  </div>
+  <div class="draw-label" id="draw-label">번호 추첨 중…</div>
+  <div class="draw-row-indicator" id="draw-row-indicator"></div>
+  <div class="draw-balls-row" id="draw-balls-row"></div>
+  <button class="btn-skip-draw" id="btn-skip-draw" onclick="skipDraw()" aria-label="추첨 건너뛰고 결과 바로 보기">
+    Skip →
+  </button>
+</div>
+
+<!-- 토스트 -->
+<div id="toast" class="toast" role="status" aria-live="polite">
+  <span id="toast-icon" aria-hidden="true">✅</span>
+  <span id="toast-text"></span>
+</div>
+
+<!-- ════════════════════════════════════════════
+     JavaScript
+════════════════════════════════════════════ -->
+<script>
+  /* ───────────────────────────── Supabase 설정 ── */
+  // ⚠️ 아래 두 값을 Supabase 프로젝트 설정에서 복사해 입력하세요
+  const SUPABASE_URL     = 'https://jihodvkgfaamzspsuosj.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppaG9kdmtnZmFhbXpzcHN1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjg4MjQsImV4cCI6MjA5MTIwNDgyNH0.Pdu5sNiQWz538H-FgoBi8V4KY4rXbaO1Th1kFb8nDc4';
+
+  const _sb = (typeof supabase !== 'undefined'
+    && SUPABASE_URL !== 'https://YOUR_PROJECT_REF.supabase.co')
+    ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+  if (!_sb) console.warn('[로또] Supabase 미설정 — sessionStorage 오프라인 모드로 동작합니다.');
+
+  /* ───────────────────────────── 고놈 PNG 시퀀스 ── */
+  const GONUM_FRAMES = [
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_01.png', ms:320},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_02.png', ms:320},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_03.png', ms:300},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_04.png', ms:300},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_05.png', ms:280},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_06.png', ms:280},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_07.png', ms:300},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_08.png', ms:320},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_09.png', ms:340},
+    {f:'고놈_로또_레퍼런스기반/01_프로그램용_PNG/gonum_lotto_10.png', ms:380},
+  ];
+
+  const gonumTimers = {};   // imgEl.id → timeoutId
+
+  function startGonumAnimation(imgEl, startIdx = 0) {
+    const id = imgEl.id || 'gonum';
+    let idx = startIdx;
+    function step() {
+      const frame = GONUM_FRAMES[idx];
+      imgEl.src = frame.f;
+      idx = (idx + 1) % GONUM_FRAMES.length;
+      gonumTimers[id] = setTimeout(step, frame.ms);
+    }
+    step();
+  }
+
+  function stopGonumAnimation(imgEl) {
+    const id = imgEl.id || 'gonum';
+    clearTimeout(gonumTimers[id]);
+  }
+
+  /* ───────────────────────────── 상수 / 상태 ── */
+  const MAX_NUM  = 27;
+  const MAX_PICK = 5;   // 행당 번호 수
+  const NUM_ROWS = 5;   // 행 수
+  const ROW_LABELS = ['A','B','C','D','E'];
+
+  // lottoRows[i] = 길이 5의 위치 배열. null = 빈 슬롯, 숫자 = 선택된 번호
+  // 예) [1, 2, null, 4, 5] — 슬롯 2가 비어있는 상태
+  const emptyRow = () => Array(MAX_PICK).fill(null);
+  let lottoRows = Array.from({length: NUM_ROWS}, emptyRow);
+  let currentManualRow = 0;
+  let isAnimating = false;
+  let currentTab = 'auto';
+
+  // 로또 추첨기 PNG 프레임 (10장)
+  const MACHINE_FRAMES = Array.from({length:10}, (_,i) =>
+    `로또추첨기_PNG/01_PNG/lotto_machine_${String(i+1).padStart(2,'0')}.png`
+  );
+  let machineFrameIdx = 0;
+  let machineTimer = null;
+  const _machineTimers = {};   // imgEl.id → intervalId (기계별 독립 관리)
+  let _drumRolls = [];         // drumRoll setInterval ID 목록
+
+  // 당첨번호 (null=미발표, Supabase lottery_results 에서 로드)
+  let WINNING_NUMBERS = null;
+  // 방송 URL (Supabase settings 테이블에서 로드)
+  let BROADCAST_URL = 'https://365.hunet.co.kr/Lvb/Home';
+
+  /* ── Supabase: 당첨번호 로드 ── */
+  async function loadWinningNumbers() {
+    if (!_sb) return;
+    try {
+      const { data, error } = await _sb
+        .from('lottery_results')
+        .select('number_1,number_2,number_3,number_4,number_5')
+        .order('draw_at', { ascending: false })
+        .limit(1);
+      if (error || !data || data.length === 0) return;
+      const r = data[0];
+      WINNING_NUMBERS = [r.number_1, r.number_2, r.number_3, r.number_4, r.number_5];
+    } catch(e) {
+      console.warn('[로또] 당첨번호 로드 실패:', e);
+    }
+  }
+
+  /* ── Supabase: 방송 URL 로드 ── */
+  async function loadBroadcastUrl() {
+    if (!_sb) return;
+    try {
+      const { data, error } = await _sb
+        .from('settings')
+        .select('value')
+        .eq('key', 'broadcast_url')
+        .single();
+      if (error || !data) return;
+      BROADCAST_URL = data.value;
+      // 모든 방송 보기 링크 업데이트
+      document.querySelectorAll('.btn-broadcast, .btn-watch').forEach(el => {
+        el.href = BROADCAST_URL;
+      });
+    } catch(e) {
+      console.warn('[로또] 방송 URL 로드 실패:', e);
+    }
+  }
+
+  /* ───────────────────────────── 볼 유틸 ── */
+  function getBallClass(n) {
+    if (n <= 10)  return 'ball-y';
+    if (n <= 20)  return 'ball-b';
+    return 'ball-r';
+  }
+
+  function makeBall(n, size = '') {
+    const d = document.createElement('div');
+    d.className = `ball ${size} ${getBallClass(n)}`.trim();
+    d.setAttribute('aria-label', `번호 ${n}`);
+    const s = document.createElement('span');
+    s.className = 'ball-num';
+    s.textContent = n;
+    d.appendChild(s);
+    return d;
+  }
+
+  /* ───────────────────────────── 로또 추첨기 애니메이션 ── */
+  function startMachine(imgEl) {
+    // 이미 실행 중이면 먼저 정지
+    if (_machineTimers[imgEl.id]) clearInterval(_machineTimers[imgEl.id]);
+    let idx = 0;
+    _machineTimers[imgEl.id] = setInterval(() => {
+      idx = (idx + 1) % MACHINE_FRAMES.length;
+      imgEl.src = MACHINE_FRAMES[idx];
+    }, 110);
+  }
+
+  function stopMachine(imgEl) {
+    if (_machineTimers[imgEl.id]) {
+      clearInterval(_machineTimers[imgEl.id]);
+      delete _machineTimers[imgEl.id];
+    }
+    imgEl.src = MACHINE_FRAMES[0];
+  }
+
+  /* ───────────────────────────── 수동 행 목록 렌더 ── */
+  function makeDotSlot(opacity) {
+    const d = document.createElement('div');
+    d.style.cssText = `width:30px;height:30px;border-radius:50%;flex-shrink:0;` +
+      `border:1.5px dashed rgba(255,255,255,${opacity})`;
+    return d;
+  }
+
+  function renderMentryRow(i) {
+    const entry   = document.getElementById(`mentry-${i}`);
+    const content = document.getElementById(`mentry-content-${i}`);
+    if (!entry || !content) return;
+
+    const row        = lottoRows[i];                        // 위치 배열 [n|null, ...]
+    const filledCnt  = rowFilled(row);
+    const done       = rowDone(row);
+    const isActive   = (currentTab === 'manual' && i === currentManualRow);
+
+    entry.classList.toggle('mentry-active', isActive);
+    entry.classList.toggle('mentry-done',   !isActive && done);
+    content.innerHTML = '';
+
+    if (filledCnt === 0 && !isActive) {
+      content.innerHTML = '<span class="mentry-empty-text">선택 전</span>';
+      return;
+    }
+    if (filledCnt === 0 && isActive) {
+      content.innerHTML = '<span class="mentry-empty-text">번호를 선택하세요</span>';
+      return;
+    }
+
+    // 위치 순서대로 슬롯 표시
+    row.forEach(n => {
+      if (n !== null) {
+        content.appendChild(makeBall(n, 'ball-xs'));
+      } else {
+        content.appendChild(makeDotSlot(isActive ? '0.25' : '0.15'));
+      }
+    });
+
+    if (done && !isActive) {
+      const edit = document.createElement('span');
+      edit.className = 'mentry-edit';
+      edit.textContent = '수정 ✎';
+      content.appendChild(edit);
+    } else {
+      const cnt = document.createElement('span');
+      cnt.className = 'mentry-count';
+      cnt.textContent = `${filledCnt}/5`;
+      content.appendChild(cnt);
+    }
+  }
+
+  function updateRowsProgressBar() {
+    for (let i = 0; i < NUM_ROWS; i++) renderMentryRow(i);
+
+    const hint = document.getElementById('manual-hint');
+    if (hint) {
+      const cnt = rowFilled(lottoRows[currentManualRow]);
+      hint.textContent = `${ROW_LABELS[currentManualRow]}행 — 1~27 중 5개를 선택하세요 (${cnt}/5)`;
+    }
+  }
+
+  function updateConfirmButton() {
+    const btn = document.getElementById('btn-confirm');
+    const allDone = lottoRows.every(rowDone);
+    btn.classList.toggle('ready', allDone);
+    btn.setAttribute('aria-disabled', String(!allDone));
+  }
+
+  /* ───────────────────────────── 탭 전환 ── */
+  function switchTab(tab) {
+    const prevTab = currentTab;
+    currentTab = tab;
+    document.getElementById('tab-btn-auto').classList.toggle('active', tab === 'auto');
+    document.getElementById('tab-btn-manual').classList.toggle('active', tab === 'manual');
+    document.getElementById('tab-btn-auto').setAttribute('aria-selected', String(tab === 'auto'));
+    document.getElementById('tab-btn-manual').setAttribute('aria-selected', String(tab === 'manual'));
+    document.getElementById('tab-auto').classList.toggle('active', tab === 'auto');
+    document.getElementById('tab-manual').classList.toggle('active', tab === 'manual');
+
+    // 탭이 실제로 바뀔 때만 초기화 (같은 탭 재클릭 방지)
+    if (prevTab === tab) return;
+
+    // lottoRows 초기화 — 두 탭은 독립적으로 동작
+    lottoRows = Array.from({length: NUM_ROWS}, emptyRow);
+    updateRowsProgressBar();
+    updateConfirmButton();
+
+    if (tab === 'manual') {
+      currentManualRow = 0;
+      initBallsGrid();
+      updateManualRowUI();
+      updateRowsProgressBar();
+    } else {
+      // 자동 탭 진입 시 자동추첨 결과 초기화
+      document.getElementById('auto-rows-result').classList.remove('show');
+      document.getElementById('auto-rows-result').innerHTML = '';
+      const btn = document.getElementById('btn-auto');
+      btn.disabled = false;
+      btn.textContent = '🎲 자동 추첨';
+    }
+  }
+
+  /* ───────────────────────────── 자동 추첨 ── */
+  function runAutoLotto() {
+    // 이전 추첨 완전 리셋
+    _drawTimers.forEach(id => clearTimeout(id));
+    _drawTimers = [];
+    _drumRolls.forEach(id => clearInterval(id));
+    _drumRolls = [];
+    _pendingAllRows = null;
+    stopMachine(document.getElementById('draw-machine-img'));
+    stopMachine(document.getElementById('auto-machine-img'));
+    document.getElementById('draw-overlay').classList.remove('active');
+    isAnimating = false;
+    lottoRows = Array.from({length: NUM_ROWS}, emptyRow);
+    const prevResult = document.getElementById('auto-rows-result');
+    prevResult.innerHTML = '';
+    prevResult.classList.remove('show');
+    isAnimating = true;
+
+    const btn = document.getElementById('btn-auto');
+    btn.disabled = true;
+    btn.textContent = '추첨 중...';
+
+    // 5행 × 5개 번호 생성
+    const allRows = [];
+    for (let r = 0; r < NUM_ROWS; r++) {
+      const pool = Array.from({length:MAX_NUM},(_,i)=>i+1);
+      for (let i = pool.length-1; i > 0; i--) {
+        const j = Math.floor(Math.random()*(i+1));
+        [pool[i],pool[j]] = [pool[j],pool[i]];
+      }
+      allRows.push(pool.slice(0,MAX_PICK).sort((a,b)=>a-b));
+    }
+    _pendingAllRows = allRows;  // Skip에서 참조
+
+    // 오버레이 드라마틱 추첨
+    const overlay   = document.getElementById('draw-overlay');
+    const drawMImg  = document.getElementById('draw-machine-img');
+    const drawBalls = document.getElementById('draw-balls-row');
+    const drawLabel = document.getElementById('draw-label');
+    const drawRowInd= document.getElementById('draw-row-indicator');
+
+    overlay.classList.add('active');
+    startMachine(drawMImg);
+    startMachine(document.getElementById('auto-machine-img'));
+
+    let rowIdx = 0;
+
+    function revealNextRow() {
+      if (rowIdx >= NUM_ROWS) {
+        // 전체 완료
+        _drawTimers.push(setTimeout(() => {
+          stopMachine(drawMImg);
+          stopMachine(document.getElementById('auto-machine-img'));
+          overlay.classList.remove('active');
+
+          // 자동 탭 결과 렌더링
+          const resultArea = document.getElementById('auto-rows-result');
+          resultArea.innerHTML = '';
+          lottoRows.forEach((row, i) => {
+            const item = document.createElement('div');
+            item.className = 'auto-row-item';
+            const badge = document.createElement('span');
+            badge.className = 'auto-row-badge';
+            badge.textContent = ROW_LABELS[i];
+            item.appendChild(badge);
+            const balls = document.createElement('div');
+            balls.className = 'auto-row-balls';
+            row.filter(n => n !== null).forEach(n => {
+              const b = makeBall(n, 'ball-sm');
+              b.classList.add('ball-animate');
+              balls.appendChild(b);
+            });
+            item.appendChild(balls);
+            resultArea.appendChild(item);
+          });
+          resultArea.classList.add('show');
+
+          updateRowsProgressBar();
+          updateConfirmButton();
+          btn.disabled = false;
+          btn.textContent = '🎲 다시 추첨';
+          isAnimating = false;
+          _drawTimers = [];
+        }, 600));
+        return;
+      }
+
+      const row = allRows[rowIdx];
+      drawLabel.textContent = `${ROW_LABELS[rowIdx]}행 추첨!`;
+      drawRowInd.textContent = `${rowIdx+1} / ${NUM_ROWS}행`;
+      drawBalls.innerHTML = '';
+
+      // 5개 슬롯 생성
+      const slots = [];
+      for (let i = 0; i < MAX_PICK; i++) {
+        const sl = document.createElement('div');
+        sl.className = 'draw-slot';
+        sl.textContent = '?';
+        drawBalls.appendChild(sl);
+        slots.push(sl);
+      }
+
+      // 드럼롤 600ms
+      const drumRoll = setInterval(() => {
+        slots.forEach(sl => { sl.textContent = Math.floor(Math.random()*MAX_NUM)+1; });
+      }, 65);
+      _drumRolls.push(drumRoll);
+
+      _drawTimers.push(setTimeout(() => {
+        clearInterval(drumRoll);
+
+        // 번호 하나씩 공개
+        row.forEach((n, idx) => {
+          _drawTimers.push(setTimeout(() => {
+            const sl = slots[idx];
+            sl.className = `draw-slot revealed ball-sm ${getBallClass(n)}`;
+            sl.textContent = '';
+            const sp = document.createElement('span');
+            sp.className = 'ball-num';
+            sp.textContent = n;
+            sl.appendChild(sp);
+
+            if (idx === MAX_PICK - 1) {
+              // 행 완료 → 저장 후 다음 행
+              lottoRows[rowIdx] = [...row];
+              rowIdx++;
+              _drawTimers.push(setTimeout(revealNextRow, 500));
+            }
+          }, idx * 280));
+        });
+      }, 600));
+    }
+
+    revealNextRow();
+  }
+
+  /* ───────────────────────────── Skip 추첨 ── */
+  // 외부에서 현재 진행 중인 추첨 allRows에 접근하기 위해 모듈 수준 변수 사용
+  let _pendingAllRows = null;   // runAutoLotto에서 세팅
+  let _drawTimers = [];         // 진행 중인 모든 setTimeout ID
+
+  function skipDraw() {
+    if (!_pendingAllRows || !isAnimating) return;
+    // 진행 중인 모든 타이머/인터벌 즉시 취소
+    _drawTimers.forEach(id => clearTimeout(id));
+    _drawTimers = [];
+    _drumRolls.forEach(id => clearInterval(id));
+    _drumRolls = [];
+    stopMachine(document.getElementById('draw-machine-img'));
+    stopMachine(document.getElementById('auto-machine-img'));
+    const overlay = document.getElementById('draw-overlay');
+    overlay.classList.remove('active');
+
+    // 결과 즉시 확정
+    _pendingAllRows.forEach((row, i) => { lottoRows[i] = [...row]; });
+
+    const resultArea = document.getElementById('auto-rows-result');
+    resultArea.innerHTML = '';
+    lottoRows.forEach((row, i) => {
+      const item = document.createElement('div');
+      item.className = 'auto-row-item';
+      const badge = document.createElement('span');
+      badge.className = 'auto-row-badge';
+      badge.textContent = ROW_LABELS[i];
+      item.appendChild(badge);
+      const balls = document.createElement('div');
+      balls.className = 'auto-row-balls';
+      row.filter(n => n !== null).forEach(n => {
+        const b = makeBall(n, 'ball-sm');
+        b.classList.add('ball-animate');
+        balls.appendChild(b);
+      });
+      item.appendChild(balls);
+      resultArea.appendChild(item);
+    });
+    resultArea.classList.add('show');
+
+    updateRowsProgressBar();
+    updateConfirmButton();
+    const btn = document.getElementById('btn-auto');
+    btn.disabled = false;
+    btn.textContent = '🎲 다시 추첨';
+    _pendingAllRows = null;
+    isAnimating = false;
+  }
+
+  /* ───────────────────────────── 수동 선택 ── */
+  function switchManualRow(rowIdx) {
+    currentManualRow = rowIdx;
+    initBallsGrid();
+    updateManualRowUI();
+    updateRowsProgressBar();
+  }
+
+  /* ── 수동 헬퍼 ── */
+  const rowFilled = r => r.filter(n => n !== null).length;
+  const rowDone   = r => r.every(n => n !== null);
+
+  function initBallsGrid() {
+    const grid = document.getElementById('balls-grid');
+    grid.innerHTML = '';
+    const row   = lottoRows[currentManualRow];
+    const full  = rowDone(row);
+
+    for (let i = 1; i <= MAX_NUM; i++) {
+      const btn = document.createElement('button');
+      btn.className = `ball ball-md ball-selectable ${getBallClass(i)}`;
+      btn.id = `grid-ball-${i}`;
+      btn.setAttribute('aria-label', `번호 ${i}`);
+      btn.setAttribute('role', 'checkbox');
+      btn.type = 'button';
+
+      const isSelected = row.indexOf(i) !== -1;
+      btn.setAttribute('aria-pressed', String(isSelected));
+      if (isSelected)       btn.classList.add('selected');
+      else if (full)        btn.classList.add('disabled-ball');
+
+      const sp = document.createElement('span');
+      sp.className = 'ball-num';
+      sp.textContent = i;
+      btn.appendChild(sp);
+      btn.addEventListener('click', () => toggleManualBall(i));
+      grid.appendChild(btn);
+    }
+  }
+
+  function toggleManualBall(n) {
+    const btnEl = document.getElementById(`grid-ball-${n}`);
+    if (btnEl.classList.contains('disabled-ball')) return;
+
+    const row   = lottoRows[currentManualRow];
+    const slotIdx = row.indexOf(n);
+
+    if (slotIdx !== -1) {
+      // ── 이미 선택된 번호 클릭 → 해당 슬롯만 빈값으로 ──
+      lottoRows[currentManualRow][slotIdx] = null;
+      btnEl.classList.remove('selected');
+      btnEl.setAttribute('aria-pressed','false');
+    } else {
+      // ── 새 번호 클릭 → 첫 번째 빈 슬롯에 순차 채움 ──
+      const emptySlot = row.indexOf(null);
+      if (emptySlot === -1) return; // 꽉 참
+      lottoRows[currentManualRow][emptySlot] = n;
+      btnEl.classList.add('selected');
+      btnEl.setAttribute('aria-pressed','true');
+    }
+
+    // disabled 상태 갱신 (5개 모두 채워지면 나머지 비활성)
+    const updated = lottoRows[currentManualRow];
+    const nowFull = rowDone(updated);
+    for (let i = 1; i <= MAX_NUM; i++) {
+      const b = document.getElementById(`grid-ball-${i}`);
+      if (!b) continue;
+      if (updated.indexOf(i) !== -1) b.classList.remove('disabled-ball');
+      else if (nowFull)              b.classList.add('disabled-ball');
+      else                           b.classList.remove('disabled-ball');
+    }
+
+    updateManualRowUI();
+    updateRowsProgressBar();
+    updateConfirmButton();
+
+    // 5개 모두 채워지면 다음 행 자동 이동
+    if (nowFull && currentManualRow < NUM_ROWS - 1) {
+      setTimeout(() => switchManualRow(currentManualRow + 1), 350);
+    }
+  }
+
+  function updateManualRowUI() {
+    updateRowsProgressBar();
+  }
+
+  /* ───────────────────────────── 확정 모달 ── */
+  function openConfirmModal() {
+    const allDone = lottoRows.every(rowDone);
+    if (!allDone) {
+      const incomplete = lottoRows.map((r,i) => !rowDone(r) ? ROW_LABELS[i] : null).filter(Boolean);
+      showToast('⚠️', `${incomplete.join(', ')}행 번호를 모두 선택해주세요`);
+      return;
+    }
+
+    const preview = document.getElementById('modal-balls-preview');
+    preview.innerHTML = '';
+
+    lottoRows.forEach((row, i) => {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'modal-preview-row';
+
+      const label = document.createElement('span');
+      label.className = 'modal-preview-row-label';
+      label.textContent = ROW_LABELS[i];
+      rowDiv.appendChild(label);
+
+      const ballsWrap = document.createElement('div');
+      ballsWrap.className = 'modal-preview-row-balls';
+      const sorted = row.filter(n => n !== null).sort((a,b)=>a-b);
+      sorted.forEach(n => ballsWrap.appendChild(makeBall(n,'ball-xs')));
+      rowDiv.appendChild(ballsWrap);
+
+      preview.appendChild(rowDiv);
+    });
+
+    document.getElementById('modal-confirm').classList.add('open');
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('modal-confirm').classList.remove('open');
+  }
+
+  async function submitTicket() {
+    closeConfirmModal();
+    const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
+    data.rows = lottoRows.map(r => r.filter(n => n !== null).sort((a,b)=>a-b));
+    data.submittedAt = new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
+
+    if (_sb) {
+      const btn = document.getElementById('btn-confirm');
+      btn.classList.remove('ready');
+      btn.textContent = '저장 중...';
+      try {
+        const { data: result, error } = await _sb.rpc('submit_entry', {
+          p_dept:           data.dept,
+          p_name:           data.dbName || data.name,
+          p_rows:           data.rows,
+          p_selection_type: currentTab
+        });
+        if (error) throw error;
+        if (result && result.success === false) {
+          if (result.error === 'ALREADY_PARTICIPATED') {
+            showToast('ℹ️','이미 참여하셨습니다. 기존 번호를 표시합니다.');
+          } else {
+            showToast('❌',`저장 실패: ${result.error}`);
+            btn.classList.add('ready');
+            btn.textContent = '5줄 모두 확정하기';
+            return;
+          }
+        }
+      } catch(e) {
+        console.warn('Supabase submit_entry 실패:', e);
+        showToast('⚠️','연결 오류 — 로컬 저장으로 계속합니다');
+      }
+    }
+
+    sessionStorage.setItem('lotto_user', JSON.stringify(data));
+    showScreen3(data);
+  }
+
+  /* ───────────────────────────── 화면 3 — 티켓 렌더링 ── */
+  function showScreen3(data) {
+    document.getElementById('ticket-name').textContent = data.name || '–';
+    document.getElementById('ticket-dept').textContent = data.dept || '–';
+    document.getElementById('ticket-date').textContent = data.submittedAt || '–';
+
+    const rowsList = document.getElementById('ticket-rows-list');
+    rowsList.innerHTML = '';
+    (data.rows || []).forEach((row, i) => {
+      const item = document.createElement('div');
+      item.className = 'ticket-row-item';
+      const lbl = document.createElement('span');
+      lbl.className = 'ticket-row-label-text';
+      lbl.textContent = ROW_LABELS[i];
+      item.appendChild(lbl);
+      const balls = document.createElement('div');
+      balls.className = 'ticket-row-balls';
+      row.forEach(n => balls.appendChild(makeBall(n,'ball-xs')));
+      item.appendChild(balls);
+      rowsList.appendChild(item);
+    });
+
+    renderPrizeGuide(data.rows);
+    updateCoffeeButtonS3();
+    showScreen('screen-3');
+  }
+
+  function renderPrizeGuide(myRows) {
+    const el = document.getElementById('prize-content');
+
+    const prizeTableHTML = `
+      <div class="prize-list">
+        <div class="prize-item"><span class="prize-badge prize-badge-1">1등</span><span class="prize-desc">15만원 상품권 — 5개 일치</span></div>
+        <div class="prize-item"><span class="prize-badge prize-badge-2">2등</span><span class="prize-desc">5만원 상품권 — 4개 일치</span></div>
+        <div class="prize-item"><span class="prize-badge prize-badge-sp">특별상</span><span class="prize-desc">즉시퇴근 🎉 — 3개 일치 행이 2개 이상</span></div>
+        <div class="prize-item"><span class="prize-badge prize-badge-3">3등</span><span class="prize-desc">1만원 상품권 — 3개 일치</span></div>
+      </div>`;
+
+    if (!WINNING_NUMBERS) {
+      el.innerHTML = '<p class="prize-pending">📡 당첨번호는 방송에서 공개됩니다</p>' + prizeTableHTML;
+      return;
+    }
+
+    // 당첨번호 볼 표시
+    const winBallsHTML = WINNING_NUMBERS.map(n =>
+      `<span class="ball ball-xs ${getBallClass(n)}">${n}</span>`
+    ).join('');
+
+    // 내 번호 비교 (myRows 없으면 당첨번호만 표시)
+    let resultHTML = '';
+    if (myRows && myRows.length > 0) {
+      const PRIZE_RANK = {'1등':1,'2등':2,'특별상':3,'3등':4};
+      let bestPrize = null;
+      let specialMatchRows = 0;
+
+      myRows.forEach(row => {
+        const mc = row.filter(n => WINNING_NUMBERS.includes(n)).length;
+        if (mc === 5 && (!bestPrize || PRIZE_RANK['1등'] < PRIZE_RANK[bestPrize])) bestPrize = '1등';
+        else if (mc === 4 && (!bestPrize || PRIZE_RANK['2등'] < PRIZE_RANK[bestPrize])) bestPrize = '2등';
+        else if (mc === 3) {
+          specialMatchRows++;
+          if (!bestPrize || PRIZE_RANK['3등'] < PRIZE_RANK[bestPrize]) bestPrize = '3등';
+        }
+      });
+      if (specialMatchRows >= 2 && (!bestPrize || PRIZE_RANK['특별상'] < PRIZE_RANK[bestPrize])) bestPrize = '특별상';
+
+      const badgeClass = {'1등':'prize-badge-1','2등':'prize-badge-2','특별상':'prize-badge-sp','3등':'prize-badge-3'};
+      resultHTML = bestPrize
+        ? `<div class="prize-result-banner prize-winner">🎉 <span class="prize-badge ${badgeClass[bestPrize]}">${bestPrize}</span>&nbsp; 당첨되셨습니다!</div>`
+        : `<div class="prize-result-banner prize-none">아쉽게도 이번엔 당첨되지 않았습니다 😢</div>`;
+    }
+
+    el.innerHTML = `
+      <div class="win-numbers-display">
+        <div class="win-numbers-label">🎯 당첨번호</div>
+        <div class="win-numbers-balls">${winBallsHTML}</div>
+      </div>
+      ${resultHTML}
+      ${prizeTableHTML}`;
+  }
+
+  /* ───────────────────────────── 커피 UI 공통 렌더 ── */
+  // state: 'loading' | 'unclaimed' | 'claimed' | 'error'
+  function renderCoffeeUI(state, claimedAt) {
+    const card       = document.getElementById('coffee-card');
+    const statusBox  = document.getElementById('coffee-status-box');
+    const stateIcon  = statusBox.querySelector('.coffee-state-icon');   // 있을 수도 없을 수도
+    const spinner    = document.getElementById('coffee-spinner');
+    const statusText = document.getElementById('coffee-status-text');
+    const statusSub  = document.getElementById('coffee-status-sub');
+    const claimedEl  = document.getElementById('coffee-claimed-at');
+    const congrats   = document.getElementById('coffee-congrats');
+    const claimBtn   = document.getElementById('btn-claim');
+    const btnSpinner = document.getElementById('btn-claim-spinner');
+    const cardIcon   = document.getElementById('coffee-card-icon');
+
+    // 상태 클래스 리셋
+    statusBox.className = `coffee-status-box state-${state}`;
+    card.className = `coffee-card${state === 'claimed' ? ' state-claimed' : ''}`;
+
+    const cfg = {
+      loading: {
+        icon: null, spinnerShow: true,
+        title: '수령 상태 확인 중…', sub: '잠시만 기다려 주세요',
+        cardIcon: '☕',
+        btnText: '상태 확인 중…', btnDisabled: true, btnClass: 'state-loading-btn',
+        congrats: false
+      },
+      unclaimed: {
+        icon: '☕', spinnerShow: false,
+        title: '아직 수령하지 않았습니다', sub: '아래 버튼을 눌러 수령을 완료하세요',
+        cardIcon: '☕',
+        btnText: '☕ 커피 수령 완료', btnDisabled: false, btnClass: '',
+        congrats: false
+      },
+      claimed: {
+        icon: '✅', spinnerShow: false,
+        title: '커피 수령이 완료되었습니다', sub: claimedAt ? `수령 일시: ${claimedAt}` : '',
+        cardIcon: '✅',
+        btnText: '✅ 이미 수령하셨습니다', btnDisabled: true, btnClass: '',
+        congrats: true
+      },
+      error: {
+        icon: '⚠️', spinnerShow: false,
+        title: '오류가 발생했습니다', sub: '잠시 후 다시 시도해 주세요',
+        cardIcon: '⚠️',
+        btnText: '다시 시도하기', btnDisabled: false, btnClass: 'state-error-btn',
+        congrats: false
+      }
+    }[state] || {};
+
+    // 스피너 / 아이콘
+    if (spinner) spinner.style.display = cfg.spinnerShow ? 'block' : 'none';
+
+    // 아이콘 자리 — 상태 아이콘 노드가 없으면 동적 생성
+    let iconEl = statusBox.querySelector('.coffee-state-icon');
+    if (!iconEl && cfg.icon) {
+      iconEl = document.createElement('span');
+      iconEl.className = 'coffee-state-icon';
+      statusBox.insertBefore(iconEl, statusBox.querySelector('.coffee-state-body'));
+    }
+    if (iconEl) {
+      iconEl.textContent = cfg.icon || '';
+      iconEl.style.display = cfg.icon ? '' : 'none';
+    }
+
+    statusText.textContent = cfg.title || '';
+    if (statusSub) statusSub.textContent = cfg.sub || '';
+    if (cardIcon) cardIcon.textContent = cfg.cardIcon || '☕';
+
+    // 수령 시각
+    if (claimedEl) {
+      if (state === 'claimed' && claimedAt) {
+        claimedEl.textContent = `수령 일시: ${claimedAt}`;
+        claimedEl.classList.add('show');
+      } else {
+        claimedEl.textContent = '';
+        claimedEl.classList.remove('show');
+      }
+    }
+
+    // 축하 배너
+    if (congrats) congrats.classList.toggle('show', !!cfg.congrats);
+
+    // CTA 버튼
+    claimBtn.disabled = !!cfg.btnDisabled;
+    claimBtn.className = `btn-claim ${cfg.btnClass || ''}`.trim();
+    if (btnSpinner) btnSpinner.style.display = state === 'loading' ? 'block' : 'none';
+    // 버튼 텍스트 (스피너 노드 보존)
+    const btnTextNode = claimBtn.lastChild;
+    if (btnTextNode && btnTextNode.nodeType === 3) {
+      btnTextNode.textContent = ' ' + (cfg.btnText || '');
+    } else {
+      claimBtn.append(' ' + (cfg.btnText || ''));
+    }
+  }
+
+  /* ───────────────────────────── 화면 4 — 커피 (PRD FR-02~08) ── */
+  async function goToScreen4() {
+    const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
+
+    // 본부+이름 없으면 S1 리다이렉트 (rows는 없어도 허용 — 특별케이스)
+    if (!data.dept || !data.name) {
+      showToast('⚠️','본부와 이름을 먼저 입력해 주세요.');
+      showScreen('screen-1');
+      return;
+    }
+
+    // 참여자 정보 표시
+    const personEl = document.getElementById('coffee-person-info');
+    if (personEl) {
+      personEl.innerHTML =
+        `<strong>${data.name}</strong>님 · ${data.dept}<br>` +
+        `이벤트 참여 커피 혜택을 수령하실 수 있습니다.`;
+    }
+
+    // 로딩 상태로 화면 전환
+    renderCoffeeUI('loading', '');
+    showScreen('screen-4');
+    updateBackTicketBtn();  // rows 확정 여부에 따라 보조 버튼 텍스트 갱신
+
+    // FR-02: 진입 시 DB 동기화 (DB 정본 우선)
+    if (_sb) {
+      try {
+        const { data: entries, error } = await _sb.rpc('get_my_entry', {
+          p_dept: data.dept,
+          p_name: data.dbName || data.name
+        });
+        if (error) throw error;
+
+        if (!entries || entries.length === 0) {
+          // 참여기록 없음 → 커피 화면은 유지, 미수령 상태로 표시
+          renderCoffeeUI('unclaimed', '');
+          updateCoffeeButtonS3(false);
+          return;
+        }
+
+        const entry = entries[0];
+        const dbClaimed  = !!entry.coffee_claimed_at;
+        const dbClaimedAt = entry.coffee_claimed_at
+          ? new Date(entry.coffee_claimed_at).toLocaleString('ko-KR',
+              {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+          : '';
+
+        // 세션 캐시 갱신 (FR-02)
+        if (dbClaimed) {
+          sessionStorage.setItem('coffee_claimed','true');
+          sessionStorage.setItem('coffee_claimed_at', dbClaimedAt);
+          data.coffeeClaimed = true;
+          data.coffeeClaimedAt = dbClaimedAt;
+          sessionStorage.setItem('lotto_user', JSON.stringify(data));
+        }
+
+        renderCoffeeUI(dbClaimed ? 'claimed' : 'unclaimed', dbClaimedAt);
+        updateCoffeeButtonS3(dbClaimed);
+        return;
+      } catch(e) {
+        console.warn('goToScreen4 get_my_entry 실패:', e);
+        // 네트워크 오류 → 세션 캐시 fallback
+      }
+    }
+
+    // Supabase 미설정 or 오류 → 세션 캐시
+    const claimed   = sessionStorage.getItem('coffee_claimed') === 'true';
+    const claimedAt = sessionStorage.getItem('coffee_claimed_at') || '';
+    renderCoffeeUI(claimed ? 'claimed' : 'unclaimed', claimedAt);
+    updateCoffeeButtonS3(claimed);
+  }
+
+  /* S4 보조 버튼 — rows 확정 여부에 따라 분기 */
+  function handleBackFromCoffee() {
+    const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
+    if (WINNING_NUMBERS) {
+      // 이벤트 종료 → rows 있으면 결과화면, 없으면 S1
+      if (data.rows) showScreen3(data);
+      else showScreen('screen-1');
+    } else {
+      if (data.rows) showScreen3(data);
+      else showScreen('screen-2');
+    }
+  }
+
+  /* S4 진입 시 보조 버튼 텍스트 업데이트 */
+  function updateBackTicketBtn() {
+    const btn = document.getElementById('btn-back-ticket');
+    if (!btn) return;
+    const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
+    if (WINNING_NUMBERS) {
+      // 이벤트 종료
+      if (data.rows) {
+        btn.textContent = '🎟 번호 확인하러 가기';
+      } else {
+        btn.textContent = '← 처음으로';
+      }
+    } else {
+      if (data.rows) {
+        btn.textContent = '🎟 내 로또 번호 확인하기';
+      } else {
+        btn.textContent = '🎲 번호 선택하러 가기';
+      }
+    }
+  }
+
+  function goToScreen3Back() {
+    const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
+    if (data.rows) showScreen3(data);
+    else showScreen('screen-3');
+  }
+
+  function openCoffeeModal() {
+    document.getElementById('modal-coffee').classList.add('open');
+  }
+
+  function closeCoffeeModal() {
+    document.getElementById('modal-coffee').classList.remove('open');
+  }
+
+  /* FR-03, FR-04, FR-05, FR-06 */
+  async function confirmCoffee() {
+    closeCoffeeModal();
+    const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
+
+    // 처리 중 로딩 상태 표시
+    renderCoffeeUI('loading', '');
+
+    if (_sb && data.dept && data.name) {
+      try {
+        const { data: result, error } = await _sb.rpc('claim_coffee', {
+          p_dept: data.dept,
+          p_name: data.dbName || data.name
+        });
+        if (error) throw error;
+
+        if (result && result.success === false) {
+          if (result.error === 'ALREADY_CLAIMED') {
+            const at = result.claimed_at
+              ? new Date(result.claimed_at).toLocaleString('ko-KR',
+                  {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+              : '';
+            sessionStorage.setItem('coffee_claimed','true');
+            sessionStorage.setItem('coffee_claimed_at', at);
+            renderCoffeeUI('claimed', at);
+            updateCoffeeButtonS3(true);
+            showToast('ℹ️','이미 수령하셨습니다.');
+          } else if (result.error === 'NOT_FOUND') {
+            renderCoffeeUI('error', '');
+            showToast('❌','참여 기록을 찾을 수 없습니다.');
+          } else {
+            renderCoffeeUI('error', '');
+            showToast('❌','수령 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+          }
+          return;
+        }
+
+        // FR-05 성공
+        const now = new Date().toLocaleString('ko-KR',
+          {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+        sessionStorage.setItem('coffee_claimed','true');
+        sessionStorage.setItem('coffee_claimed_at', now);
+        data.coffeeClaimed = true;
+        data.coffeeClaimedAt = now;
+        sessionStorage.setItem('lotto_user', JSON.stringify(data));
+        renderCoffeeUI('claimed', now);
+        updateCoffeeButtonS3(true);
+        showToast('☕','커피 수령이 완료되었습니다!');
+        return;
+
+      } catch(e) {
+        console.warn('confirmCoffee RPC 실패:', e);
+        // PRD 케이스 C: 네트워크 오류 — 로컬 fallback 금지
+        renderCoffeeUI('error', '');
+        showToast('❌','수령 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
+    }
+
+    // Supabase 미설정(로컬 테스트) 전용 fallback
+    const now = new Date().toLocaleString('ko-KR',
+      {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    sessionStorage.setItem('coffee_claimed','true');
+    sessionStorage.setItem('coffee_claimed_at', now);
+    renderCoffeeUI('claimed', now);
+    updateCoffeeButtonS3(true);
+    showToast('☕','커피 수령이 완료되었습니다!');
+  }
+
+  function updateCoffeeButtonS3(claimed) {
+    if (claimed === undefined) claimed = sessionStorage.getItem('coffee_claimed') === 'true';
+    const btn = document.getElementById('btn-coffee-s3');
+    if (claimed) {
+      btn.textContent = '✅ 커피 수령 완료';
+      btn.disabled = true;
+    } else {
+      btn.textContent = '☕ 커피 수령하기';
+      btn.disabled = false;
+    }
+  }
+
+  /* ───────────────────────────── 화면 전환 ── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function goToScreen3() {
+    const data = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
+    if (data.rows) showScreen3(data);
+  }
+
+  /* ───────────────────────────── 본부 선택 변경 — 팀 드롭다운 토글 ── */
+  function onDeptChange(val) {
+    const teamGroup = document.getElementById('form-group-team');
+    const teamSelect = document.getElementById('input-team');
+    if (val === '교육서비스본부') {
+      teamGroup.classList.add('visible');
+    } else {
+      teamGroup.classList.remove('visible');
+      teamSelect.value = '';
+    }
+  }
+
+  /* 교육서비스본부일 때 DB 저장용 이름 생성 (팀 포함) */
+  function buildDbName(dept, name, team) {
+    if (dept === '교육서비스본부' && team && team !== '해당 없음') {
+      return name + '(' + team + ')';
+    }
+    return name;
+  }
+
+  /* ───────────────────────────── S1 커피 전용 진입 (특별케이스) ── */
+  function handleCoffeeOnly() {
+    const dept = document.getElementById('input-dept').value;
+    const team = document.getElementById('input-team').value;
+    const name = document.getElementById('input-name').value.trim();
+    if (!dept) { showToast('⚠️','본부를 선택해주세요'); return; }
+    if (dept === '교육서비스본부' && !team) { showToast('⚠️','팀을 선택해주세요'); return; }
+    if (!name) { showToast('⚠️','이름을 입력해주세요'); return; }
+    if (!/^[가-힣]+$/.test(name)) { showToast('⚠️','한글 이름을 입력해주세요'); return; }
+    const dbName = buildDbName(dept, name, team);
+    // 항상 새로 입력한 정보로 세션 초기화 (rows는 보존하지 않음 — 커피 전용 진입)
+    sessionStorage.setItem('lotto_user', JSON.stringify({dept, team, name, dbName}));
+    goToScreen4();
+  }
+
+  /* ───────────────────────────── 화면 1 — 시작 ── */
+  async function handleStart() {
+    const dept = document.getElementById('input-dept').value;
+    const team = document.getElementById('input-team').value;
+    const name = document.getElementById('input-name').value.trim();
+
+    if (!dept) {
+      document.getElementById('input-dept').focus();
+      showToast('⚠️','본부를 선택해주세요');
+      return;
+    }
+    if (dept === '교육서비스본부' && !team) {
+      document.getElementById('input-team').focus();
+      showToast('⚠️','팀을 선택해주세요');
+      return;
+    }
+    if (!name) {
+      showToast('⚠️','이름을 입력해주세요');
+      return;
+    }
+    if (!/^[가-힣]+$/.test(name)) {
+      showToast('⚠️','한글 이름을 입력해주세요');
+      return;
+    }
+
+    const dbName = buildDbName(dept, name, team);
+
+    // sessionStorage 캐시 우선 확인
+    const cached = JSON.parse(sessionStorage.getItem('lotto_user') || '{}');
+    if (cached.rows && cached.dept === dept && cached.dbName === dbName) {
+      showScreen3(cached);
+      return;
+    }
+
+    const btn = document.getElementById('btn-start');
+
+    // Supabase DB에서 기참여 여부 조회
+    if (_sb) {
+      btn.disabled = true;
+      btn.textContent = '확인 중...';
+      try {
+        const { data: entries, error } = await _sb.rpc('get_my_entry', {
+          p_dept: dept,
+          p_name: dbName   // 교육서비스본부는 "홍길동(팀명)" 형식
+        });
+        if (error) throw error;
+        if (entries && entries.length > 0) {
+          const entry = entries[0];
+          const rows = typeof entry.rows === 'string' ? JSON.parse(entry.rows) : entry.rows;
+          const claimedAt = entry.coffee_claimed_at
+            ? new Date(entry.coffee_claimed_at).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+            : '';
+          const confirmedAt = entry.confirmed_at
+            ? new Date(entry.confirmed_at).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+            : '';
+          const userData = {
+            dept, team, name, dbName, rows,
+            submittedAt: new Date(entry.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}),
+            confirmedAt,
+            coffeeClaimed: !!entry.coffee_claimed_at,
+            coffeeClaimedAt: claimedAt
+          };
+          sessionStorage.setItem('lotto_user', JSON.stringify(userData));
+          if (userData.coffeeClaimed) {
+            sessionStorage.setItem('coffee_claimed','true');
+            sessionStorage.setItem('coffee_claimed_at', claimedAt);
+          }
+          btn.disabled = false;
+          btn.textContent = '번호 선택하러 가기';
+          showScreen3(userData);
+          return;
+        }
+
+        // 참여 기록 없음 → 이벤트 종료 여부 확인
+        if (WINNING_NUMBERS) {
+          // 당첨번호 이미 발표 = 이벤트 종료 → 커피 수령만 가능
+          btn.disabled = false;
+          btn.textContent = '번호 선택하러 가기';
+          sessionStorage.setItem('lotto_user', JSON.stringify({dept, team, name, dbName}));
+          showToast('📢','이벤트가 종료되었습니다. 커피 수령만 가능합니다.');
+          return;
+        }
+
+      } catch(e) {
+        console.warn('Supabase get_my_entry 실패, 로컬 모드로 진행:', e);
+        showToast('⚠️','연결 오류 — 오프라인 모드로 진행합니다');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '번호 선택하러 가기';
+      }
+    }
+
+    // 이벤트 종료 체크 (Supabase 미연결 fallback)
+    if (WINNING_NUMBERS) {
+      showToast('📢','이벤트가 종료되었습니다. 커피 수령만 가능합니다.');
+      const data = {dept, team, name, dbName};
+      sessionStorage.setItem('lotto_user', JSON.stringify(data));
+      return;
+    }
+
+    // 미참여 → 번호 선택 화면
+    const data = {dept, team, name, dbName};
+    sessionStorage.setItem('lotto_user', JSON.stringify(data));
+    document.getElementById('header-user-info').textContent = `${name} · ${dept}`;
+
+    lottoRows = Array.from({length: NUM_ROWS}, emptyRow);
+    switchTab('auto');
+    showScreen('screen-2');
+  }
+
+  function resetAndRestart() {
+    sessionStorage.removeItem('lotto_user');
+    document.getElementById('input-dept').value = '';
+    document.getElementById('input-team').value = '';
+    document.getElementById('form-group-team').classList.remove('visible');
+    document.getElementById('input-name').value = '';
+    // revisit-banner 제거됨
+    lottoRows = Array.from({length: NUM_ROWS}, emptyRow);
+    showScreen('screen-1');
+  }
+
+  /* ───────────────────────────── 이미지 저장 ── */
+  function saveTicketImage() {
+    const card = document.getElementById('ticket-card');
+    showToast('⏳','이미지 생성 중...');
+    html2canvas(card, {scale:2, useCORS:true, backgroundColor:'#FFFDF5', logging:false})
+      .then(canvas => {
+        const link = document.createElement('a');
+        const name = document.getElementById('ticket-name').textContent || '티켓';
+        link.download = `HUNET_로또_티켓_${name}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('✅','이미지가 저장되었습니다');
+      })
+      .catch(() => showToast('❌','저장에 실패했습니다. 다시 시도해주세요'));
+  }
+
+  /* ───────────────────────────── 토스트 ── */
+  function showToast(icon, text) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-icon').textContent = icon;
+    document.getElementById('toast-text').textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+  /* ───────────────────────────── 이벤트 리스너 ── */
+  document.getElementById('input-dept').addEventListener('focus', function() {
+    document.getElementById('input-name').blur();
+  });
+
+  document.getElementById('input-dept').addEventListener('change', function() {
+    const teamGroup  = document.getElementById('form-group-team');
+    const teamSelect = document.getElementById('input-team');
+    if (this.value === '교육서비스본부') {
+      teamGroup.classList.add('visible');
+    } else {
+      teamGroup.classList.remove('visible');
+      teamSelect.value = '';
+    }
+  });
+
+  document.getElementById('input-name').addEventListener('keydown', e => {
+    if (e.key === ' ') { e.preventDefault(); return; }
+    if (e.key === 'Enter') handleStart();
+  });
+  document.getElementById('modal-confirm').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirmModal();
+  });
+  document.getElementById('modal-coffee').addEventListener('click', function(e) {
+    if (e.target === this) closeCoffeeModal();
+  });
+
+  /* ───────────────────────────── 초기화 ── */
+  (async function init() {
+    // 고놈 PNG 시퀀스 애니메이션 시작
+    startGonumAnimation(document.getElementById('gonum-hero-img'));
+    startGonumAnimation(document.getElementById('ticket-gonum-img'));
+    startGonumAnimation(document.getElementById('modal-gonum-img'));
+
+    // 페이지 로드 시 세션 초기화 (한 컴퓨터에서 여러 명이 사용하는 경우 대비)
+    sessionStorage.removeItem('lotto_user');
+    sessionStorage.removeItem('coffee_claimed');
+    sessionStorage.removeItem('coffee_claimed_at');
+
+    // Supabase에서 방송 URL + 당첨번호 로드 (비동기, 실패해도 기본값 유지)
+    await Promise.allSettled([loadBroadcastUrl(), loadWinningNumbers()]);
+
+    // 이벤트 종료 시 버튼 텍스트 변경 (번호 선택 → 당첨번호 확인)
+    if (WINNING_NUMBERS) {
+      document.getElementById('btn-start').textContent = '🏆 당첨번호 확인하러 가기';
+    }
+
+  })();
+
+  /* ───────────────────────────── 사용 설명서 오버레이 ── */
+  function openGuide() {
+    document.getElementById('guide-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeGuide() {
+    document.getElementById('guide-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('guide-overlay').scrollTop = 0;
+  }
+  function guideSwitchTab(type) {
+    const overlay = document.getElementById('guide-overlay');
+    overlay.querySelectorAll('#g-s2-tabs .g-tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', (type==='auto'&&i===0)||(type==='manual'&&i===1));
+    });
+    overlay.getElementById && null; // noop
+    document.getElementById('g-tab-auto').classList.toggle('active', type==='auto');
+    document.getElementById('g-tab-manual').classList.toggle('active', type==='manual');
+  }
+  function guideToggleFaq(el) { el.classList.toggle('open'); }
+  // 가이드 오버레이 스크롤 탑 버튼
+  document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('guide-overlay');
+    const scrollBtn = document.getElementById('guide-scroll-top-btn');
+    if (overlay && scrollBtn) {
+      overlay.addEventListener('scroll', function() {
+        scrollBtn.classList.toggle('show', overlay.scrollTop > 300);
+      });
+    }
+  });
+  function guideScrollTop() {
+    document.getElementById('guide-overlay').scrollTo({top:0,behavior:'smooth'});
+  }
+</script>
+
+<!-- ════════════════════════════════════════════
+     사용 설명서 오버레이
+════════════════════════════════════════════ -->
+<div id="guide-overlay" class="guide-overlay" role="dialog" aria-modal="true" aria-label="사용 설명서">
+
+  <!-- 닫기 바 -->
+  <div class="guide-close-bar">
+    <div class="guide-close-brand">
+      <span class="guide-close-wordmark">HUNET</span>
+      <div class="guide-close-divider"></div>
+      <span class="guide-close-label">사내 로또 이벤트</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="guide-close-badge">📖 사용 설명서</span>
+      <button class="guide-close-btn" onclick="closeGuide()">
+        ✕ 닫기
+      </button>
+    </div>
+  </div>
+
+  <div class="g-layout">
+
+    <!-- 히어로 -->
+    <div class="g-hero">
+      <div class="g-eyebrow">📖 HOW TO USE</div>
+      <h1 class="g-title"><span class="accent">HU 사내 로또 이벤트</span><br/>사용 설명서</h1>
+      <p class="g-desc">참여 방법부터 번호 선택, 티켓 저장, 커피 수령까지<br />단계별로 알기 쉽게 안내합니다.</p>
+    </div>
+
+    <!-- 목차 -->
+    <nav class="g-toc">
+      <div class="g-toc-title">목차</div>
+      <ul class="g-toc-list">
+        <li><a href="#g-overview"><span class="g-toc-num gray">✦</span>이벤트 개요</a></li>
+        <li><a href="#g-flow"><span class="g-toc-num gray">✦</span>전체 흐름 한눈에 보기</a></li>
+        <li><a href="#g-s1"><span class="g-toc-num red">1</span>STEP 1 — 본부 선택 &amp; 이름 입력</a></li>
+        <li><a href="#g-s2"><span class="g-toc-num violet">2</span>STEP 2 — 번호 선택 (자동 / 수동)</a></li>
+        <li><a href="#g-s3"><span class="g-toc-num gold">3</span>STEP 3 — 내 티켓 확인 &amp; 저장</a></li>
+        <li><a href="#g-s4"><span class="g-toc-num green">4</span>STEP 4 — 커피 수령</a></li>
+        <li><a href="#g-prize">🏆 당첨 기준 &amp; 번호 볼 색상</a></li>
+        <li><a href="#g-faq">❓ 자주 묻는 질문 (FAQ)</a></li>
+      </ul>
+    </nav>
+
+    <!-- 개요 -->
+    <section class="g-section" id="g-overview">
+      <div class="g-section-header">
+        <div class="g-step-badge gray">✦</div>
+        <div><div class="g-section-title">이벤트 개요</div><div class="g-section-sub">HU 창립 27주년 기념 사내 로또 이벤트</div></div>
+      </div>
+      <div class="g-grid2">
+        <div class="g-card"><div class="g-card-title"><span class="icon">🎯</span>참여 방법</div><div class="g-card-body"><strong>본부 선택 + 이름</strong>으로 간편하게 참여합니다.<br />로그인이나 사번 입력 없이 누구나 쉽게 이용할 수 있어요.</div></div>
+        <div class="g-card"><div class="g-card-title"><span class="icon">🔢</span>번호 구조</div><div class="g-card-body"><strong>1~27번</strong> 중에서 선택하며,<br /><em>5행 × 5개</em> = 총 25개 번호를 뽑습니다.<br />행 내 중복 불가, 행 간 중복은 허용됩니다.</div></div>
+        <div class="g-card"><div class="g-card-title"><span class="icon">👤</span>참여 제한</div><div class="g-card-body"><em>1인 1회</em> 참여 가능합니다.<br />같은 본부 + 이름으로 재접속 시 기존 번호가 조회됩니다.</div></div>
+        <div class="g-card"><div class="g-card-title"><span class="icon">📡</span>당첨 발표</div><div class="g-card-body">당첨번호는 <strong>사내 방송</strong>을 통해 공개됩니다.<br />방송 중 확인한 번호와 내 티켓을 직접 대조해 보세요!</div></div>
+      </div>
+      <div class="g-notice info"><div class="g-notice-icon">ℹ️</div><div class="g-notice-body"><strong>숫자 27의 의미</strong> — 번호 범위가 1~27인 것은 HUNET 창립 <strong>27주년</strong>을 기념하기 위해서입니다.</div></div>
+    </section>
+
+    <!-- 전체 흐름 -->
+    <section class="g-section" id="g-flow">
+      <div class="g-section-header">
+        <div class="g-step-badge gray">✦</div>
+        <div><div class="g-section-title">전체 흐름 한눈에 보기</div><div class="g-section-sub">어떤 경우에 어느 화면으로 가는지 미리 확인하세요</div></div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="icon">🆕</span>처음 참여하는 경우</div>
+        <div class="g-flow">
+          <span class="g-flow-node red">STEP 1<br/>본부·이름 입력</span><span class="g-flow-arrow">→</span>
+          <span class="g-flow-node violet">STEP 2<br/>번호 선택</span><span class="g-flow-arrow">→</span>
+          <span class="g-flow-node gold">STEP 3<br/>티켓 확인</span><span class="g-flow-arrow">→</span>
+          <span class="g-flow-node green">STEP 4<br/>커피 수령</span>
+        </div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="icon">🔄</span>이미 참여한 상태로 재접속하는 경우</div>
+        <div class="g-flow">
+          <span class="g-flow-node red">STEP 1<br/>본부·이름 입력</span><span class="g-flow-arrow">→</span>
+          <span class="g-flow-node gold">STEP 3<br/>내 티켓 조회</span><span class="g-flow-arrow">→</span>
+          <span class="g-flow-node green">STEP 4<br/>커피 수령</span>
+        </div>
+        <div class="g-card-body" style="margin-top:10px;font-size:13px">번호 선택 화면(STEP 2)은 건너뛰고 바로 내 티켓이 표시됩니다.</div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="icon">☕</span>커피만 수령하는 특별 케이스</div>
+        <div class="g-flow">
+          <span class="g-flow-node red">STEP 1<br/>본부·이름 입력</span><span class="g-flow-arrow">→</span>
+          <span class="g-flow-node green">STEP 4<br/>커피 수령 바로 이동</span>
+        </div>
+        <div class="g-card-body" style="margin-top:10px;font-size:13px">진입 화면 하단의 <strong>"☕ 커피만 수령하기"</strong> 버튼을 누르면 번호 선택 없이 커피 수령 화면으로 바로 이동합니다.</div>
+      </div>
+    </section>
+
+    <!-- STEP 1 -->
+    <section class="g-section" id="g-s1">
+      <div class="g-section-header">
+        <div class="g-step-badge red">1</div>
+        <div><div class="g-section-title">STEP 1 — 본부 선택 &amp; 이름 입력</div><div class="g-section-sub">이벤트 진입 화면 · 참여자 식별</div></div>
+      </div>
+      <ol class="g-steps g-card">
+        <li class="g-step-item"><div class="g-step-circle">1</div><div class="g-step-text"><strong>본부를 선택하세요.</strong><br />드롭다운 목록에서 내가 소속된 본부를 고릅니다.<br /><em>교육사업본부 / 교육서비스본부 / L&amp;D테크본부 / 휴넷 L&amp;D연구원 / 인재경영실 / 전략경영실 / 커뮤니케이션실</em></div></li>
+        <li class="g-step-item"><div class="g-step-circle">2</div><div class="g-step-text"><strong>이름을 입력하세요.</strong><br />한글만 입력 가능합니다.</div></li>
+        <li class="g-step-item"><div class="g-step-circle">3</div><div class="g-step-text"><strong>"참여하기" 버튼을 누르세요.</strong><br />입력한 본부+이름으로 기존 참여 여부를 확인합니다.</div></li>
+        <li class="g-step-item"><div class="g-step-circle">4</div><div class="g-step-text"><strong>결과에 따라 이동합니다.</strong><br />처음 참여자 → 번호 선택 화면(STEP 2)<br />이미 참여한 분 → 내 티켓 화면(STEP 3)으로 바로 이동</div></li>
+      </ol>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="g-section" id="g-s2">
+      <div class="g-section-header">
+        <div class="g-step-badge violet">2</div>
+        <div><div class="g-section-title">STEP 2 — 번호 선택</div><div class="g-section-sub">자동 추첨 또는 수동 선택 · 5행 × 5개</div></div>
+      </div>
+      <div class="g-notice info"><div class="g-notice-icon">💡</div><div class="g-notice-body"><strong>5행 × 5개</strong>를 모두 선택해야 참여 확정 버튼이 활성화됩니다.<br />A / B / C / D / E 각 행에 1~27번 중 <strong>중복 없이 5개</strong>씩 선택하세요. (행 간 중복은 허용)</div></div>
+      <div class="g-tabs" id="g-s2-tabs">
+        <button class="g-tab-btn active" onclick="guideSwitchTab('auto')">🎰 자동 추첨</button>
+        <button class="g-tab-btn" onclick="guideSwitchTab('manual')">✏️ 수동 선택</button>
+      </div>
+      <div id="g-tab-auto" class="g-tab-panel active">
+        <ol class="g-steps g-card">
+          <li class="g-step-item"><div class="g-step-circle v">1</div><div class="g-step-text"><strong>"자동 추첨" 탭</strong>에서 <strong>"자동으로 뽑기"</strong> 버튼을 누르세요.</div></li>
+          <li class="g-step-item"><div class="g-step-circle v">2</div><div class="g-step-text">로또 추첨기 애니메이션이 재생되며 <strong>A~E행 5개 줄이 동시에 생성</strong>됩니다.<br />드럼롤 효과와 함께 각 행이 순차적으로 공개됩니다.</div></li>
+          <li class="g-step-item"><div class="g-step-circle v">3</div><div class="g-step-text">애니메이션이 길게 느껴지면 <strong>"Skip"</strong> 버튼으로 즉시 결과를 확인할 수 있습니다.</div></li>
+          <li class="g-step-item"><div class="g-step-circle v">4</div><div class="g-step-text">결과가 마음에 들지 않으면 <strong>"다시 뽑기"</strong>를 눌러 새 번호를 받을 수 있습니다. 횟수 제한 없음.</div></li>
+          <li class="g-step-item"><div class="g-step-circle v">5</div><div class="g-step-text">번호가 결정되면 <strong>"이 번호로 참여하기"</strong> 버튼을 눌러 최종 확인 후 제출합니다.</div></li>
+        </ol>
+      </div>
+      <div id="g-tab-manual" class="g-tab-panel">
+        <ol class="g-steps g-card">
+          <li class="g-step-item"><div class="g-step-circle v">1</div><div class="g-step-text"><strong>"수동 선택" 탭</strong>으로 전환하면 A~E 행 목록이 표시됩니다.<br />처음엔 <strong>A행</strong>이 활성화되어 있습니다.</div></li>
+          <li class="g-step-item"><div class="g-step-circle v">2</div><div class="g-step-text">아래 번호 그리드에서 원하는 번호를 클릭하세요.<br />연속으로 5개를 선택하면 <strong>A행에 순서대로 등록</strong>됩니다.</div></li>
+          <li class="g-step-item"><div class="g-step-circle v">3</div><div class="g-step-text">A행 5개 선택 완료 시 <strong>자동으로 B행으로 이동</strong>합니다.<br />이후 B~E행도 동일하게 반복합니다.</div></li>
+          <li class="g-step-item"><div class="g-step-circle v">4</div><div class="g-step-text"><strong>행 수정</strong>이 필요한 경우: 행 목록에서 해당 행을 클릭해 전환한 뒤,<br />이미 선택된 번호를 다시 클릭하면 <strong>해당 슬롯만 비워집니다.</strong></div></li>
+          <li class="g-step-item"><div class="g-step-circle v">5</div><div class="g-step-text">5행 모두 완료 후 <strong>"이 번호로 참여하기"</strong>를 눌러 제출합니다.</div></li>
+        </ol>
+        <div class="g-notice warn"><div class="g-notice-icon">✏️</div><div class="g-notice-body"><strong>수정 예시:</strong> A행에 1, 2, 3, 4, 5가 등록된 상태에서 <strong>3을 다시 클릭</strong>하면 3이 있던 슬롯만 비워집니다. 이후 새 번호를 선택하면 빈 슬롯에 채워집니다.</div></div>
+      </div>
+      <div class="g-notice danger"><div class="g-notice-icon">🔒</div><div class="g-notice-body"><strong>제출 후 번호 변경은 불가합니다.</strong> 확인 모달에서 최종 번호를 꼭 확인한 뒤 제출하세요.</div></div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="g-section" id="g-s3">
+      <div class="g-section-header">
+        <div class="g-step-badge gold">3</div>
+        <div><div class="g-section-title">STEP 3 — 내 티켓 확인 &amp; 저장</div><div class="g-section-sub">내 티켓 확인 및 당첨 여부 확인</div></div>
+      </div>
+      <div class="g-card"><div class="g-card-title"><span class="icon">🎟</span>티켓 카드 구성</div><div class="g-card-body">제출이 완료되면 <strong>로또 티켓 카드</strong>가 표시됩니다.<br />티켓에는 <strong>이벤트명 · 본부 · 이름 · 참여일자 · A~E행 번호</strong>가 포함됩니다.</div></div>
+      <ol class="g-steps g-card">
+        <li class="g-step-item"><div class="g-step-circle g">1</div><div class="g-step-text">화면에서 내 <strong>A~E행 5줄 번호</strong>를 확인하세요.<br />번호 볼은 색상으로 범위를 구분합니다. (아래 색상 기준 참고)</div></li>
+        <li class="g-step-item"><div class="g-step-circle g">2</div><div class="g-step-text"><strong>"이미지로 저장"</strong> 버튼을 누르거나 기기의 화면 캡처 기능을 이용해 티켓을 저장하세요.</div></li>
+        <li class="g-step-item"><div class="g-step-circle g">3</div><div class="g-step-text"><strong>방송 시청</strong> 중 공개되는 당첨번호와 내 번호를 직접 대조하세요.<br />방송 링크는 화면 상단 또는 하단 버튼에서 확인할 수 있습니다.<br />당첨번호가 공개된 이후에는 <strong>로또 이벤트 페이지에서 직접 당첨 여부</strong>를 확인할 수 있습니다.</div></li>
+        <li class="g-step-item"><div class="g-step-circle g">4</div><div class="g-step-text">커피 혜택이 있다면 <strong>"☕ 커피 수령하기"</strong> 버튼으로 STEP 4로 이동하세요.</div></li>
+      </ol>
+      <div class="g-notice tip"><div class="g-notice-icon">💾</div><div class="g-notice-body">티켓 이미지를 저장해 두면 나중에 재접속 없이 번호를 확인할 수 있습니다. 방송 전 미리 저장해 두시길 권장합니다.</div></div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="g-section" id="g-s4">
+      <div class="g-section-header">
+        <div class="g-step-badge green">4</div>
+        <div><div class="g-section-title">STEP 4 — 커피 수령</div><div class="g-section-sub">이벤트 참여 커피 혜택 수령 처리</div></div>
+      </div>
+      <div class="g-grid2">
+        <div class="g-card"><div class="g-card-title"><span class="icon">☕</span>미수령 상태</div><div class="g-card-body">"아직 수령하지 않았습니다"가 표시되며<br /><strong>"수령 완료" 버튼</strong>이 활성화됩니다.</div></div>
+        <div class="g-card"><div class="g-card-title"><span class="icon">✅</span>수령 완료 상태</div><div class="g-card-body">수령 처리 후에는 <strong>수령 일시</strong>가 기록되며<br />버튼이 비활성화됩니다.</div></div>
+      </div>
+      <ol class="g-steps g-card">
+        <li class="g-step-item"><div class="g-step-circle gr">1</div><div class="g-step-text">화면에서 커피 수령 상태를 확인합니다.</div></li>
+        <li class="g-step-item"><div class="g-step-circle gr">2</div><div class="g-step-text"><strong>"수령 완료" 버튼</strong>을 누르면 수령완료 처리가 됩니다.</div></li>
+      </ol>
+      <div class="g-notice warn"><div class="g-notice-icon">⚠️</div><div class="g-notice-body"><strong>수령 완료 후에는 취소할 수 없습니다.</strong> 실제 커피를 받으신 후에 수령 처리를 해주세요.</div></div>
+      <div class="g-card" style="margin-top:16px">
+        <div class="g-card-title"><span class="icon">🔙</span>돌아가기 버튼 안내</div>
+        <div class="g-card-body">
+          커피 수령 화면 하단의 버튼은 번호 확정 여부에 따라 달라집니다.<br /><br />
+          • 번호를 확정한 경우 → <strong>"🎟 내 로또 번호 확인하기"</strong> → 티켓 화면(STEP 3)으로 이동<br />
+          • 번호를 아직 선택하지 않은 경우 → <strong>"🎲 번호 선택하러 가기"</strong> → 번호 선택 화면(STEP 2)으로 이동
+        </div>
+      </div>
+    </section>
+
+    <hr class="g-divider" />
+
+    <!-- 당첨 기준 -->
+    <section class="g-section" id="g-prize">
+      <div class="g-section-header">
+        <div class="g-step-badge gray">🏆</div>
+        <div><div class="g-section-title">당첨 기준 &amp; 번호 볼 색상</div><div class="g-section-sub">5행 중 최고 등수 행 기준으로 판정</div></div>
+      </div>
+      <div class="g-card" style="margin-bottom:16px">
+        <div class="g-card-title"><span class="icon">🎨</span>번호 볼 색상 기준</div>
+        <div class="g-balls-row">
+          <span class="g-ball y">7</span><span class="g-ball-label">1~10 노랑</span>
+          <span class="g-ball b">15</span><span class="g-ball-label">11~20 파랑</span>
+          <span class="g-ball r">24</span><span class="g-ball-label">21~27 빨강</span>
+        </div>
+      </div>
+      <div class="g-card">
+        <div class="g-card-title"><span class="icon">🏅</span>당첨 등수 기준</div>
+        <table class="g-prize-table">
+          <thead><tr><th>등수</th><th>조건</th><th>상품</th></tr></thead>
+          <tbody>
+            <tr><td class="rank-1">1등</td><td>5개 전부 일치하는 행 존재</td><td>15만원</td></tr>
+            <tr><td class="rank-2">2등</td><td>4개 일치하는 행 존재</td><td>5만원</td></tr>
+            <tr><td class="rank-s">특별상</td><td>3개 일치한 행이 2개 이상</td><td>즉시퇴근 🎉</td></tr>
+            <tr><td class="rank-3">3등</td><td>3개 일치하는 행 존재</td><td>1만원</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="g-notice info"><div class="g-notice-icon">📌</div><div class="g-notice-body">당첨 여부는 <strong>방송 후 관리자가 당첨번호를 등록</strong>한 시점부터 확인할 수 있습니다. 5행 중 <strong>가장 높은 등수</strong>의 행 하나를 기준으로 판정합니다.</div></div>
+    </section>
+
+    <hr class="g-divider" />
+
+    <!-- FAQ -->
+    <section class="g-section" id="g-faq">
+      <div class="g-section-header">
+        <div class="g-step-badge gray">?</div>
+        <div><div class="g-section-title">자주 묻는 질문 (FAQ)</div><div class="g-section-sub">궁금한 점을 확인하세요</div></div>
+      </div>
+      <div class="g-faq-item" onclick="guideToggleFaq(this)">
+        <button class="g-faq-q"><span class="g-faq-q-icon">🔄</span><span class="g-faq-q-text">번호를 제출한 뒤 변경할 수 있나요?</span><span class="g-faq-arrow">▼</span></button>
+        <div class="g-faq-a"><strong>불가합니다.</strong> 확인 모달에서 "확인"을 누른 순간 DB에 저장되며 변경이 불가합니다. 제출 전 최종 확인 모달에서 반드시 번호를 한 번 더 확인하세요.</div>
+      </div>
+      <div class="g-faq-item" onclick="guideToggleFaq(this)">
+        <button class="g-faq-q"><span class="g-faq-q-icon">📱</span><span class="g-faq-q-text">탭을 닫았다가 다시 접속하면 번호가 유지되나요?</span><span class="g-faq-arrow">▼</span></button>
+        <div class="g-faq-a"><strong>탭을 닫으면 세션이 초기화</strong>되어 STEP 1에서 다시 본부와 이름을 입력해야 합니다. 하지만 DB에 저장된 번호는 그대로 유지되므로, 재입력 후 바로 내 티켓 화면(STEP 3)으로 이동됩니다.</div>
+      </div>
+      <div class="g-faq-item" onclick="guideToggleFaq(this)">
+        <button class="g-faq-q"><span class="g-faq-q-icon">🖼</span><span class="g-faq-q-text">당첨 시 이미지 저장 후 제출은 어떻게 하나요?</span><span class="g-faq-arrow">▼</span></button>
+        <div class="g-faq-a">
+          <strong>① 이미지 저장 기능 이용</strong><br />
+          내 티켓 화면(STEP 3) 하단의 <strong>"이미지로 저장"</strong> 버튼을 누르면 티켓 카드 영역이 자동으로 캡처되어 저장됩니다. 이름·본부·A~E행 번호·날짜가 모두 포함된 이미지입니다.<br /><br />
+          <strong>② 화면 직접 캡처 후 전달</strong><br />
+          이미지 저장 버튼이 동작하지 않는 경우, 기기의 화면 캡처 기능을 직접 이용하세요.<br />
+          • PC: <strong>Win + Shift + S</strong> 또는 <strong>PrtSc</strong><br />
+          • Mac: <strong>Cmd + Shift + 4</strong>로 티켓 영역 선택 캡처<br />
+          • 모바일: 볼륨 다운 + 전원 버튼 동시 누름<br /><br />
+          캡처한 이미지를 담당자에게 메신저나 이메일로 전달하시면 당첨 확인이 가능합니다.
+        </div>
+      </div>
+      <div class="g-faq-item" onclick="guideToggleFaq(this)">
+        <button class="g-faq-q"><span class="g-faq-q-icon">☕</span><span class="g-faq-q-text">로또 번호 없이 커피만 수령하려면요?</span><span class="g-faq-arrow">▼</span></button>
+        <div class="g-faq-a">STEP 1 진입 화면 하단의 <strong>"☕ 커피만 수령하기"</strong> 버튼을 이용하세요. 본부와 이름 입력 후 해당 버튼을 누르면 번호 선택 없이 커피 수령 화면으로 바로 이동합니다.</div>
+      </div>
+      <div class="g-faq-item" onclick="guideToggleFaq(this)">
+        <button class="g-faq-q"><span class="g-faq-q-icon">📡</span><span class="g-faq-q-text">당첨번호는 언제 확인할 수 있나요?</span><span class="g-faq-arrow">▼</span></button>
+        <div class="g-faq-a">당첨번호는 <strong>사내 방송을 통해 실시간으로 공개</strong>됩니다. 방송에서 발표된 번호와 내 티켓 번호를 직접 대조하세요. 방송 링크는 이벤트 화면 상단 또는 하단 버튼에서 확인할 수 있습니다.</div>
+      </div>
+    </section>
+
+  </div><!-- /g-layout -->
+</div><!-- /guide-overlay -->
+
+<!-- 가이드 내 맨위로 버튼 -->
+<button class="guide-scroll-top" id="guide-scroll-top-btn" onclick="guideScrollTop()" aria-label="맨 위로">↑</button>
+
+</body>
+</html>
