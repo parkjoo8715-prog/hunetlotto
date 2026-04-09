@@ -1149,6 +1149,13 @@
       .balls-grid{grid-template-columns:repeat(9,1fr)}
       .auto-rows-result{max-width:600px}
     }
+    @media(max-width:320px){
+      .form-card{padding:24px 16px}
+      .form-input,.form-select{font-size:14px;padding:12px 12px}
+      .balls-grid{grid-template-columns:repeat(6,1fr);gap:4px}
+      .ball-md{width:38px;height:38px;font-size:12px}
+      .s1-body{padding:24px 12px}
+    }
     @media(prefers-reduced-motion:reduce){
       .ball-animate,.slot-filled-anim,.draw-label{animation:none}
       .gonum-character{animation:none}
@@ -1834,7 +1841,18 @@
 
   /* ───────────────────────────── 자동 추첨 ── */
   function runAutoLotto() {
-    if (isAnimating) return;
+    // 이전 추첨 완전 리셋
+    _drawTimers.forEach(id => clearTimeout(id));
+    _drawTimers = [];
+    _pendingAllRows = null;
+    stopMachine(document.getElementById('draw-machine-img'));
+    stopMachine(document.getElementById('auto-machine-img'));
+    document.getElementById('draw-overlay').classList.remove('active');
+    isAnimating = false;
+    lottoRows = Array.from({length: NUM_ROWS}, emptyRow);
+    const prevResult = document.getElementById('auto-rows-result');
+    prevResult.innerHTML = '';
+    prevResult.classList.remove('show');
     isAnimating = true;
 
     const btn = document.getElementById('btn-auto');
@@ -1869,7 +1887,7 @@
     function revealNextRow() {
       if (rowIdx >= NUM_ROWS) {
         // 전체 완료
-        setTimeout(() => {
+        _drawTimers.push(setTimeout(() => {
           stopMachine(drawMImg);
           stopMachine(document.getElementById('auto-machine-img'));
           overlay.classList.remove('active');
@@ -1901,7 +1919,8 @@
           btn.disabled = false;
           btn.textContent = '🎲 다시 추첨';
           isAnimating = false;
-        }, 600);
+          _drawTimers = [];
+        }, 600));
         return;
       }
 
@@ -1925,12 +1944,12 @@
         slots.forEach(sl => { sl.textContent = Math.floor(Math.random()*MAX_NUM)+1; });
       }, 65);
 
-      setTimeout(() => {
+      _drawTimers.push(setTimeout(() => {
         clearInterval(drumRoll);
 
         // 번호 하나씩 공개
         row.forEach((n, idx) => {
-          setTimeout(() => {
+          _drawTimers.push(setTimeout(() => {
             const sl = slots[idx];
             sl.className = `draw-slot revealed ball-sm ${getBallClass(n)}`;
             sl.textContent = '';
@@ -1943,11 +1962,11 @@
               // 행 완료 → 저장 후 다음 행
               lottoRows[rowIdx] = [...row];
               rowIdx++;
-              setTimeout(revealNextRow, 500);
+              _drawTimers.push(setTimeout(revealNextRow, 500));
             }
-          }, idx * 280);
+          }, idx * 280));
         });
-      }, 600);
+      }, 600));
     }
 
     revealNextRow();
@@ -1956,10 +1975,13 @@
   /* ───────────────────────────── Skip 추첨 ── */
   // 외부에서 현재 진행 중인 추첨 allRows에 접근하기 위해 모듈 수준 변수 사용
   let _pendingAllRows = null;   // runAutoLotto에서 세팅
+  let _drawTimers = [];         // 진행 중인 모든 setTimeout ID
 
   function skipDraw() {
     if (!_pendingAllRows || !isAnimating) return;
-    // 모든 타이머 정지
+    // 진행 중인 모든 타이머 즉시 취소
+    _drawTimers.forEach(id => clearTimeout(id));
+    _drawTimers = [];
     stopMachine(document.getElementById('draw-machine-img'));
     stopMachine(document.getElementById('auto-machine-img'));
     const overlay = document.getElementById('draw-overlay');
@@ -2562,8 +2584,8 @@
     const name = document.getElementById('input-name').value.trim();
     if (!dept) { showToast('⚠️','본부를 선택해주세요'); return; }
     if (dept === '교육서비스본부' && !team) { showToast('⚠️','팀을 선택해주세요'); return; }
-    if (!name) { alert('한글명을 입력해주세요'); return; }
-    if (!/^[가-힣]+$/.test(name)) { alert('한글명을 입력해주세요'); return; }
+    if (!name) { showToast('⚠️','이름을 입력해주세요'); return; }
+    if (!/^[가-힣]+$/.test(name)) { showToast('⚠️','한글 이름을 입력해주세요'); return; }
     const dbName = buildDbName(dept, name, team);
     // 항상 새로 입력한 정보로 세션 초기화 (rows는 보존하지 않음 — 커피 전용 진입)
     sessionStorage.setItem('lotto_user', JSON.stringify({dept, team, name, dbName}));
@@ -2587,13 +2609,11 @@
       return;
     }
     if (!name) {
-      document.getElementById('input-name').focus();
-      alert('한글명을 입력해주세요');
+      showToast('⚠️','이름을 입력해주세요');
       return;
     }
     if (!/^[가-힣]+$/.test(name)) {
-      document.getElementById('input-name').focus();
-      alert('한글명을 입력해주세요');
+      showToast('⚠️','한글 이름을 입력해주세요');
       return;
     }
 
@@ -2721,6 +2741,10 @@
   }
 
   /* ───────────────────────────── 이벤트 리스너 ── */
+  document.getElementById('input-dept').addEventListener('focus', function() {
+    document.getElementById('input-name').blur();
+  });
+
   document.getElementById('input-dept').addEventListener('change', function() {
     const teamGroup  = document.getElementById('form-group-team');
     const teamSelect = document.getElementById('input-team');
@@ -2733,6 +2757,7 @@
   });
 
   document.getElementById('input-name').addEventListener('keydown', e => {
+    if (e.key === ' ') { e.preventDefault(); return; }
     if (e.key === 'Enter') handleStart();
   });
   document.getElementById('modal-confirm').addEventListener('click', function(e) {
