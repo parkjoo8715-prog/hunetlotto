@@ -2696,7 +2696,6 @@
           btn.textContent = '번호 선택하러 가기';
           sessionStorage.setItem('lotto_user', JSON.stringify({dept, team, name, dbName}));
           showToast('📢','이벤트가 종료되었습니다. 커피 수령만 가능합니다.');
-          setTimeout(() => goToScreen4(), 1800);
           return;
         }
 
@@ -2714,7 +2713,6 @@
       showToast('📢','이벤트가 종료되었습니다. 커피 수령만 가능합니다.');
       const data = {dept, team, name, dbName};
       sessionStorage.setItem('lotto_user', JSON.stringify(data));
-      setTimeout(() => goToScreen4(), 1800);
       return;
     }
 
