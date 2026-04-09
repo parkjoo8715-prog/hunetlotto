@@ -1,0 +1,46 @@
+{
+  "format": "png-sequence",
+  "loop": true,
+  "frames": [
+    {
+      "file": "gonum_lotto_01.png",
+      "duration_ms": 320
+    },
+    {
+      "file": "gonum_lotto_02.png",
+      "duration_ms": 320
+    },
+    {
+      "file": "gonum_lotto_03.png",
+      "duration_ms": 300
+    },
+    {
+      "file": "gonum_lotto_04.png",
+      "duration_ms": 300
+    },
+    {
+      "file": "gonum_lotto_05.png",
+      "duration_ms": 280
+    },
+    {
+      "file": "gonum_lotto_06.png",
+      "duration_ms": 280
+    },
+    {
+      "file": "gonum_lotto_07.png",
+      "duration_ms": 300
+    },
+    {
+      "file": "gonum_lotto_08.png",
+      "duration_ms": 320
+    },
+    {
+      "file": "gonum_lotto_09.png",
+      "duration_ms": 340
+    },
+    {
+      "file": "gonum_lotto_10.png",
+      "duration_ms": 380
+    }
+  ]
+}
