@@ -2804,10 +2804,9 @@
     // Supabase에서 방송 URL + 당첨번호 로드 (비동기, 실패해도 기본값 유지)
     await Promise.allSettled([loadBroadcastUrl(), loadWinningNumbers()]);
 
-    // 이벤트 종료 여부에 따라 S1 버튼 텍스트 변경
+    // 이벤트 종료 여부에 따라 S1 버튼 표시/숨김
     if (WINNING_NUMBERS) {
-      const btnStart = document.getElementById('btn-start');
-      btnStart.textContent = '🏆 당첨번호 확인하러 가기';
+      document.getElementById('btn-start').style.display = 'none';
     }
 
   })();
