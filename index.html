@@ -1800,6 +1800,7 @@
 
   /* ───────────────────────────── 탭 전환 ── */
   function switchTab(tab) {
+    const prevTab = currentTab;
     currentTab = tab;
     document.getElementById('tab-btn-auto').classList.toggle('active', tab === 'auto');
     document.getElementById('tab-btn-manual').classList.toggle('active', tab === 'manual');
@@ -1808,8 +1809,10 @@
     document.getElementById('tab-auto').classList.toggle('active', tab === 'auto');
     document.getElementById('tab-manual').classList.toggle('active', tab === 'manual');
 
+    // 탭이 실제로 바뀔 때만 초기화 (같은 탭 재클릭 방지)
+    if (prevTab === tab) return;
 
-    // 탭 전환 시 선택 초기화
+    // lottoRows 초기화 — 두 탭은 독립적으로 동작
     lottoRows = Array.from({length: NUM_ROWS}, emptyRow);
     updateRowsProgressBar();
     updateConfirmButton();
@@ -1820,7 +1823,7 @@
       updateManualRowUI();
       updateRowsProgressBar();
     } else {
-      // 자동 탭 — 결과 초기화
+      // 자동 탭 진입 시 자동추첨 결과 초기화
       document.getElementById('auto-rows-result').classList.remove('show');
       document.getElementById('auto-rows-result').innerHTML = '';
       const btn = document.getElementById('btn-auto');
@@ -2084,7 +2087,11 @@
   /* ───────────────────────────── 확정 모달 ── */
   function openConfirmModal() {
     const allDone = lottoRows.every(rowDone);
-    if (!allDone) return;
+    if (!allDone) {
+      const incomplete = lottoRows.map((r,i) => !rowDone(r) ? ROW_LABELS[i] : null).filter(Boolean);
+      showToast('⚠️', `${incomplete.join(', ')}행 번호를 모두 선택해주세요`);
+      return;
+    }
 
     const preview = document.getElementById('modal-balls-preview');
     preview.innerHTML = '';
@@ -2617,9 +2624,13 @@
           const claimedAt = entry.coffee_claimed_at
             ? new Date(entry.coffee_claimed_at).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
             : '';
+          const confirmedAt = entry.confirmed_at
+            ? new Date(entry.confirmed_at).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+            : '';
           const userData = {
             dept, team, name, dbName, rows,
             submittedAt: new Date(entry.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}),
+            confirmedAt,
             coffeeClaimed: !!entry.coffee_claimed_at,
             coffeeClaimedAt: claimedAt
           };
@@ -2633,6 +2644,18 @@
           showScreen3(userData);
           return;
         }
+
+        // 참여 기록 없음 → 이벤트 종료 여부 확인
+        if (WINNING_NUMBERS) {
+          // 당첨번호 이미 발표 = 이벤트 종료 → 커피 수령만 가능
+          btn.disabled = false;
+          btn.textContent = '번호 선택하러 가기';
+          sessionStorage.setItem('lotto_user', JSON.stringify({dept, team, name, dbName}));
+          showToast('📢','이벤트가 종료되었습니다. 커피 수령만 가능합니다.');
+          setTimeout(() => goToScreen4(), 1800);
+          return;
+        }
+
       } catch(e) {
         console.warn('Supabase get_my_entry 실패, 로컬 모드로 진행:', e);
         showToast('⚠️','연결 오류 — 오프라인 모드로 진행합니다');
@@ -2640,6 +2663,15 @@
         btn.disabled = false;
         btn.textContent = '번호 선택하러 가기';
       }
+    }
+
+    // 이벤트 종료 체크 (Supabase 미연결 fallback)
+    if (WINNING_NUMBERS) {
+      showToast('📢','이벤트가 종료되었습니다. 커피 수령만 가능합니다.');
+      const data = {dept, team, name, dbName};
+      sessionStorage.setItem('lotto_user', JSON.stringify(data));
+      setTimeout(() => goToScreen4(), 1800);
+      return;
     }
 
     // 미참여 → 번호 선택 화면
