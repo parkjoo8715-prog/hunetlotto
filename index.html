@@ -1817,6 +1817,7 @@
 
   /* ───────────────────────────── 탭 전환 ── */
   function switchTab(tab) {
+    if (isAnimating) return;
     const prevTab = currentTab;
     currentTab = tab;
     document.getElementById('tab-btn-auto').classList.toggle('active', tab === 'auto');
@@ -2179,6 +2180,23 @@
         if (result && result.success === false) {
           if (result.error === 'ALREADY_PARTICIPATED') {
             showToast('ℹ️','이미 참여하셨습니다. 기존 번호를 표시합니다.');
+            // DB 정본 기존 번호 조회 후 S3 표시
+            try {
+              const { data: existing, error: fetchErr } = await _sb.rpc('get_my_entry', {
+                p_dept: data.dept,
+                p_name: data.dbName || data.name
+              });
+              if (fetchErr) throw fetchErr;
+              if (existing && existing.length > 0) {
+                const entry = existing[0];
+                const rows = typeof entry.rows === 'string' ? JSON.parse(entry.rows) : entry.rows;
+                data.rows = rows;
+                data.submittedAt = new Date(entry.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
+              }
+            } catch(fetchE) {
+              console.warn('ALREADY_PARTICIPATED 기존 번호 조회 실패:', fetchE);
+              // 조회 실패 시 로컬 rows 유지
+            }
           } else {
             showToast('❌',`저장 실패: ${result.error}`);
             btn.classList.add('ready');
