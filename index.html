@@ -1660,6 +1660,8 @@
   );
   let machineFrameIdx = 0;
   let machineTimer = null;
+  const _machineTimers = {};   // imgEl.id → intervalId (기계별 독립 관리)
+  let _drumRolls = [];         // drumRoll setInterval ID 목록
 
   // 당첨번호 (null=미발표, Supabase lottery_results 에서 로드)
   let WINNING_NUMBERS = null;
@@ -1723,15 +1725,20 @@
 
   /* ───────────────────────────── 로또 추첨기 애니메이션 ── */
   function startMachine(imgEl) {
-    machineFrameIdx = 0;
-    machineTimer = setInterval(() => {
-      machineFrameIdx = (machineFrameIdx + 1) % MACHINE_FRAMES.length;
-      imgEl.src = MACHINE_FRAMES[machineFrameIdx];
+    // 이미 실행 중이면 먼저 정지
+    if (_machineTimers[imgEl.id]) clearInterval(_machineTimers[imgEl.id]);
+    let idx = 0;
+    _machineTimers[imgEl.id] = setInterval(() => {
+      idx = (idx + 1) % MACHINE_FRAMES.length;
+      imgEl.src = MACHINE_FRAMES[idx];
     }, 110);
   }
 
   function stopMachine(imgEl) {
-    clearInterval(machineTimer);
+    if (_machineTimers[imgEl.id]) {
+      clearInterval(_machineTimers[imgEl.id]);
+      delete _machineTimers[imgEl.id];
+    }
     imgEl.src = MACHINE_FRAMES[0];
   }
 
@@ -1844,6 +1851,8 @@
     // 이전 추첨 완전 리셋
     _drawTimers.forEach(id => clearTimeout(id));
     _drawTimers = [];
+    _drumRolls.forEach(id => clearInterval(id));
+    _drumRolls = [];
     _pendingAllRows = null;
     stopMachine(document.getElementById('draw-machine-img'));
     stopMachine(document.getElementById('auto-machine-img'));
@@ -1940,9 +1949,10 @@
       }
 
       // 드럼롤 600ms
-      let drumRoll = setInterval(() => {
+      const drumRoll = setInterval(() => {
         slots.forEach(sl => { sl.textContent = Math.floor(Math.random()*MAX_NUM)+1; });
       }, 65);
+      _drumRolls.push(drumRoll);
 
       _drawTimers.push(setTimeout(() => {
         clearInterval(drumRoll);
@@ -1979,9 +1989,11 @@
 
   function skipDraw() {
     if (!_pendingAllRows || !isAnimating) return;
-    // 진행 중인 모든 타이머 즉시 취소
+    // 진행 중인 모든 타이머/인터벌 즉시 취소
     _drawTimers.forEach(id => clearTimeout(id));
     _drawTimers = [];
+    _drumRolls.forEach(id => clearInterval(id));
+    _drumRolls = [];
     stopMachine(document.getElementById('draw-machine-img'));
     stopMachine(document.getElementById('auto-machine-img'));
     const overlay = document.getElementById('draw-overlay');
