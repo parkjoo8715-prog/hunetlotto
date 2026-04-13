@@ -2427,31 +2427,8 @@
         if (error) throw error;
 
         if (!entries || entries.length === 0) {
-          // 로또 참여기록 없음 → coffee_claims 조회 (커피 전용 사용자)
-          data.coffeeOnly = true;
-          sessionStorage.setItem('lotto_user', JSON.stringify(data));
-          try {
-            const { data: claim, error: claimErr } = await _sb.rpc('get_coffee_claim', {
-              p_dept: data.dept,
-              p_name: data.dbName || data.name
-            });
-            if (claimErr) throw claimErr;
-            if (claim && claim.claimed) {
-              const at = new Date(claim.claimed_at).toLocaleString('ko-KR',
-                {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-              sessionStorage.setItem('coffee_claimed','true');
-              sessionStorage.setItem('coffee_claimed_at', at);
-              renderCoffeeUI('claimed', at);
-              updateCoffeeButtonS3(true);
-            } else {
-              renderCoffeeUI('unclaimed', '');
-              updateCoffeeButtonS3(false);
-            }
-          } catch(e2) {
-            console.warn('get_coffee_claim 실패:', e2);
-            renderCoffeeUI('unclaimed', '');
-            updateCoffeeButtonS3(false);
-          }
+          renderCoffeeUI('unclaimed', '');
+          updateCoffeeButtonS3(false);
           return;
         }
 
@@ -2544,9 +2521,7 @@
     }
 
     try {
-      // coffeeOnly: coffee_claims RPC / 로또 참여자: claim_coffee RPC
-      const rpcName = data.coffeeOnly ? 'claim_coffee_only' : 'claim_coffee';
-      const { data: result, error } = await _sb.rpc(rpcName, {
+      const { data: result, error } = await _sb.rpc('claim_coffee', {
         p_dept: data.dept,
         p_name: data.dbName || data.name
       });
