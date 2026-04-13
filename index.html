@@ -2191,7 +2191,7 @@
                 const entry = existing[0];
                 const rows = typeof entry.rows === 'string' ? JSON.parse(entry.rows) : entry.rows;
                 data.rows = rows;
-                data.submittedAt = new Date(entry.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
+                data.submittedAt = new Date(entry.lottery_at || entry.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'});
               }
             } catch(fetchE) {
               console.warn('ALREADY_PARTICIPATED 기존 번호 조회 실패:', fetchE);
@@ -2653,27 +2653,33 @@
         if (error) throw error;
         if (entries && entries.length > 0) {
           const entry = entries[0];
-          const rows = typeof entry.rows === 'string' ? JSON.parse(entry.rows) : entry.rows;
-          const userData = {
-            dept, team, name, dbName, rows,
-            submittedAt: new Date(entry.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'})
-          };
-          // 커피 수령 상태 별도 조회 (coffee_claims 독립 테이블)
-          try {
-            const { data: claim } = await _sb.rpc('get_coffee_claim', {p_dept: dept, p_name: dbName});
-            if (claim?.claimed) {
-              const at = new Date(claim.claimed_at).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-              userData.coffeeClaimed = true;
-              userData.coffeeClaimedAt = at;
-              sessionStorage.setItem('coffee_claimed','true');
-              sessionStorage.setItem('coffee_claimed_at', at);
-            }
-          } catch(e2) { /* 커피 조회 실패 시 무시 */ }
-          sessionStorage.setItem('lotto_user', JSON.stringify(userData));
-          btn.disabled = false;
-          btn.textContent = '번호 선택하러 가기';
-          showScreen3(userData);
-          return;
+          // 커피 수령 상태 조회 (event_participants 통합 테이블)
+          const coffeeClaimed  = !!entry.coffee_claimed_at;
+          const coffeeClaimedAt = entry.coffee_claimed_at
+            ? new Date(entry.coffee_claimed_at).toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})
+            : '';
+          if (coffeeClaimed) {
+            sessionStorage.setItem('coffee_claimed','true');
+            sessionStorage.setItem('coffee_claimed_at', coffeeClaimedAt);
+          }
+
+          // 로또 참여 여부 — lottery_at 기준
+          if (entry.lottery_at) {
+            const rows = typeof entry.rows === 'string' ? JSON.parse(entry.rows) : entry.rows;
+            const userData = {
+              dept, team, name, dbName, rows,
+              submittedAt: new Date(entry.lottery_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}),
+              coffeeClaimed, coffeeClaimedAt
+            };
+            sessionStorage.setItem('lotto_user', JSON.stringify(userData));
+            btn.disabled = false;
+            btn.textContent = '번호 선택하러 가기';
+            showScreen3(userData);
+            return;
+          }
+
+          // 커피만 수령한 사람 → 로또 미참여자로 처리
+          sessionStorage.setItem('lotto_user', JSON.stringify({dept, team, name, dbName, coffeeClaimed, coffeeClaimedAt}));
         }
 
         // 참여 기록 없음 → 이벤트 종료 여부 확인
