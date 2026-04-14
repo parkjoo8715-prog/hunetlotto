@@ -779,7 +779,9 @@
       border-radius:var(--r-sm);
     }
     .win-numbers-label{font-size:11px;font-weight:700;color:#FBC400;flex-shrink:0}
-    .win-numbers-balls{display:flex;gap:5px;flex-wrap:wrap}
+    .win-numbers-balls{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+    .win-numbers-bonus-sep{font-size:13px;font-weight:900;color:var(--t3);margin:0 2px}
+    .ball-bonus{outline:2px solid #FBC400;outline-offset:2px}
     .prize-result-banner{
       padding:10px 14px;border-radius:var(--r-sm);margin-bottom:10px;
       font-size:13px;text-align:center;
@@ -1663,11 +1665,12 @@
   const _machineTimers = {};   // imgEl.id → intervalId (기계별 독립 관리)
   let _drumRolls = [];         // drumRoll setInterval ID 목록
 
-  // 당첨 우선순위 상수 (1등 > 2등 > 특별상 > 3등)
-  const PRIZE_RANK = {'1등':1,'2등':2,'특별상':3,'3등':4};
+  // 당첨 우선순위 상수 (1등 > 특별상 > 2등 > 3등)
+  const PRIZE_RANK = {'1등':1,'특별상':2,'2등':3,'3등':4};
 
   // 당첨번호 (null=미발표, Supabase lottery_results 에서 로드)
   let WINNING_NUMBERS = null;
+  let BONUS_NUMBER = null;
   // 방송 URL (Supabase settings 테이블에서 로드)
   let BROADCAST_URL = 'https://365.hunet.co.kr/Lvb/Home';
 
@@ -1677,12 +1680,13 @@
     try {
       const { data, error } = await _sb
         .from('lottery_results')
-        .select('number_1,number_2,number_3,number_4,number_5')
+        .select('number_1,number_2,number_3,number_4,number_5,bonus_number')
         .order('draw_at', { ascending: false })
         .limit(1);
       if (error || !data || data.length === 0) return;
       const r = data[0];
       WINNING_NUMBERS = [r.number_1, r.number_2, r.number_3, r.number_4, r.number_5];
+      if (r.bonus_number) BONUS_NUMBER = r.bonus_number;
     } catch(e) {
       console.warn('[로또] 당첨번호 로드 실패:', e);
     }
@@ -2250,8 +2254,8 @@
     const prizeTableHTML = `
       <div class="prize-list">
         <div class="prize-item"><span class="prize-badge prize-badge-1">1등</span><span class="prize-desc">15만원 상품권 — 5개 일치</span></div>
+        <div class="prize-item"><span class="prize-badge prize-badge-sp">특별상</span><span class="prize-desc">즉시퇴근 🎉 — 4개 일치 + 보너스 번호</span></div>
         <div class="prize-item"><span class="prize-badge prize-badge-2">2등</span><span class="prize-desc">5만원 상품권 — 4개 일치</span></div>
-        <div class="prize-item"><span class="prize-badge prize-badge-sp">특별상</span><span class="prize-desc">즉시퇴근 🎉 — 3개 일치 행이 2개 이상</span></div>
         <div class="prize-item"><span class="prize-badge prize-badge-3">3등</span><span class="prize-desc">1만원 상품권 — 3개 일치</span></div>
       </div>`;
 
@@ -2265,22 +2269,24 @@
       `<span class="ball ball-xs ${getBallClass(n)}">${n}</span>`
     ).join('');
 
+    // 보너스 번호 볼 표시
+    const bonusBallHTML = BONUS_NUMBER !== null
+      ? `<span class="win-numbers-bonus-sep">+</span><span class="ball ball-xs ball-bonus ${getBallClass(BONUS_NUMBER)}">${BONUS_NUMBER}</span>`
+      : '';
+
     // 내 번호 비교 (myRows 없으면 당첨번호만 표시)
     let resultHTML = '';
     if (myRows && myRows.length > 0) {
       let bestPrize = null;
-      let specialMatchRows = 0;
 
       myRows.forEach(row => {
         const mc = row.filter(n => WINNING_NUMBERS.includes(n)).length;
-        if (mc === 5 && (!bestPrize || PRIZE_RANK['1등'] < PRIZE_RANK[bestPrize])) bestPrize = '1등';
-        else if (mc === 4 && (!bestPrize || PRIZE_RANK['2등'] < PRIZE_RANK[bestPrize])) bestPrize = '2등';
-        else if (mc === 3) {
-          specialMatchRows++;
-          if (!bestPrize || PRIZE_RANK['3등'] < PRIZE_RANK[bestPrize]) bestPrize = '3등';
-        }
+        const hasBonus = BONUS_NUMBER !== null && row.includes(BONUS_NUMBER);
+        if (mc === 5) { if (!bestPrize || PRIZE_RANK['1등'] < PRIZE_RANK[bestPrize]) bestPrize = '1등'; }
+        else if (mc === 4 && hasBonus) { if (!bestPrize || PRIZE_RANK['특별상'] < PRIZE_RANK[bestPrize]) bestPrize = '특별상'; }
+        else if (mc === 4) { if (!bestPrize || PRIZE_RANK['2등'] < PRIZE_RANK[bestPrize]) bestPrize = '2등'; }
+        else if (mc === 3) { if (!bestPrize || PRIZE_RANK['3등'] < PRIZE_RANK[bestPrize]) bestPrize = '3등'; }
       });
-      if (specialMatchRows >= 2 && (!bestPrize || PRIZE_RANK['특별상'] < PRIZE_RANK[bestPrize])) bestPrize = '특별상';
 
       const badgeClass = {'1등':'prize-badge-1','2등':'prize-badge-2','특별상':'prize-badge-sp','3등':'prize-badge-3'};
       resultHTML = bestPrize
@@ -2291,7 +2297,7 @@
     el.innerHTML = `
       <div class="win-numbers-display">
         <div class="win-numbers-label">🎯 당첨번호</div>
-        <div class="win-numbers-balls">${winBallsHTML}</div>
+        <div class="win-numbers-balls">${winBallsHTML}${bonusBallHTML}</div>
       </div>
       ${resultHTML}
       ${prizeTableHTML}`;
