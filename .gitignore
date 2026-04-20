@@ -1,0 +1,25 @@
+# 환경변수·시크릿
+.env
+.env.*
+*.pem
+*.key
+
+# Claude 로컬 설정
+.claude/settings.local.json
+
+# Windows 시스템
+desktop.ini
+Thumbs.db
+
+# 임시 파일
+~$*
+*.tmp
+
+# Node
+node_modules/
+.next/
+dist/
+
+# 테스트 결과
+test-results/
+playwright-report/
