@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<!-- SITE_CLOSED: true — 재오픈 시 이 블록 제거 -->
+<script>
+window.addEventListener('load', function() {
+  alert('로또 이벤트가 종료되었습니다.');
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('button, a, [onclick]')) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      alert('로또 이벤트가 종료되었습니다.');
+    }
+  }, true);
+});
+</script>
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
