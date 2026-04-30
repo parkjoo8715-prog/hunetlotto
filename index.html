@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<!-- SITE_CLOSED: true — 재오픈 시 이 블록 제거 -->
+<!-- SITE_CLOSED: true — 재오픈 시 이 두 태그 제거 -->
+<style>body{display:none!important}</style>
 <script>
-(function(){
-  window.stop();
-  document.open();
-  document.write('<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HUNET 사내 로또 이벤트 2026</title></head><body style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif"><p style="font-size:18px;color:#333">이벤트가 종료되었습니다</p></body></html>');
-  document.close();
-})();
+document.addEventListener('DOMContentLoaded', function() {
+  document.body.innerHTML = '<div style="margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif"><p style="font-size:18px;color:#333">이벤트가 종료되었습니다</p></div>';
+  document.body.style.display = 'flex';
+});
 </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
